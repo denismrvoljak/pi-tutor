@@ -1,0 +1,60 @@
+{
+  "name": "pi-tutor",
+  "version": "0.1.0",
+  "description": "Stateful tutor mode package for pi.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "node --test",
+    "check": "pnpm typecheck && pnpm test && pnpm build",
+    "pack:smoke": "node ./scripts/pack-smoke.mjs"
+  },
+  "files": [
+    "README.md",
+    "extensions",
+    "prompts",
+    "skills",
+    "src",
+    "scripts",
+    "tsconfig.json"
+  ],
+  "keywords": [
+    "pi-package",
+    "pi",
+    "tutor",
+    "typescript"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "@sinclair/typebox": "*"
+  },
+  "engines": {
+    "node": ">=20.6.0",
+    "pnpm": ">=10.0.0"
+  },
+  "devDependencies": {
+    "@mariozechner/pi-ai": "0.58.1",
+    "@mariozechner/pi-coding-agent": "0.58.1",
+    "@mariozechner/pi-tui": "0.58.1",
+    "@sinclair/typebox": "^0.34.48",
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.30.1",
+  "license": "MIT"
+}
