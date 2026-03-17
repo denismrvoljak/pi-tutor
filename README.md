@@ -1,8 +1,23 @@
 # pi-tutor
 
-`pi-tutor` is a pi package for **stateful tutor-mode workflows**.
+### Personal coding tutor for pi
 
-It keeps tutor state in markdown files, resumes topic-specific tracks when the learner names the topic, and pushes pi toward attempt-first, hint-first teaching instead of autopilot answers.
+`pi-tutor` turns pi into a teaching-oriented coding assistant.
+
+It adapts to how you like to learn, remembers what you're learning, resumes topics over time, and guides you with hint-first help instead of jumping straight to solutions.
+
+## What this is
+
+`pi-tutor` is a tutor extension for pi. It is meant for learning while coding — not just getting answers, but building understanding, practicing in small steps, and keeping momentum across sessions.
+
+## What it does
+
+- adapts to your learning style and preferences
+- remembers what you're learning and resumes it later
+- keeps separate topic folders for different learning tracks
+- prefers hints, questions, and next steps before full solutions
+- helps you reflect on progress, blockers, and what to do next
+- supports learning through small projects, exercises, and repeated practice
 
 ## Quick start
 
