@@ -81,9 +81,10 @@ test("workflow resources are concrete track-aware package contents instead of pl
   assert.match(readText("prompts/next_step.md"), /progress\.md/);
 });
 
-test("README documents global/project install, reload, workflow usage, state layout, and current limitations", () => {
+test("README documents GitHub install, local dev install, reload, workflow usage, state layout, and current limitations", () => {
   const readme = readText("README.md");
 
+  assert.match(readme, /pi install https:\/\/github\.com\/denismrvoljak\/pi-tutor/);
   assert.match(readme, /pi install \/absolute\/path\/to\/pi-tutor/);
   assert.match(readme, /pi install -l \/absolute\/path\/to\/pi-tutor/);
   assert.match(readme, /\/reload/);
@@ -100,11 +101,12 @@ test("README documents global/project install, reload, workflow usage, state lay
   assert.match(readme, /name the topic clearly/i);
   assert.match(readme, /no hidden active-track state|no active-track state/i);
   assert.match(readme, /single-agent|no subagents/i);
+  assert.doesNotMatch(readme, /Install from a tarball/i);
   assert.doesNotMatch(readme, /Optional Future Subagents/i);
   assert.doesNotMatch(readme, /Subagents may be added later/i);
 });
 
-test("README examples and pack smoke stay in sync with packaged resources", () => {
+test("README workflow examples and pack smoke stay in sync with packaged resources", () => {
   const readme = readText("README.md");
   const script = readText("scripts/pack-smoke.mjs");
 
@@ -117,11 +119,9 @@ test("README examples and pack smoke stay in sync with packaged resources", () =
     assert.match(script, new RegExp(skillName));
   }
 
-  assert.match(readme, /pnpm pack --pack-destination/);
-  assert.match(readme, /tar -xzf "\$tarball" -C "\$unpack_dir"/);
-  assert.match(readme, /pi install -l "\$unpack_dir\/package"/);
-  assert.doesNotMatch(readme, /pi install -l "\$tarball"/);
+  assert.match(readme, /pnpm pack:smoke/);
   assert.match(readme, /pi list/);
+  assert.match(script, /pnpm", \["pack", "--pack-destination"/);
   assert.match(script, /DefaultResourceLoader/);
   assert.match(script, /SettingsManager/);
   assert.match(script, /tar", \["-xzf"/);

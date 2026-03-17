@@ -4,6 +4,18 @@
 
 It keeps tutor state in markdown files, resumes topic-specific tracks when the learner names the topic, and pushes pi toward attempt-first, hint-first teaching instead of autopilot answers.
 
+## Quick start
+
+```bash
+pi install https://github.com/denismrvoljak/pi-tutor
+```
+
+Then open pi and enable tutor mode:
+
+```text
+/tutor on
+```
+
 ## What it includes
 
 - `/tutor on`
@@ -55,7 +67,7 @@ File roles:
 
 This package is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
 
-## Install from a local path
+## Local development install
 
 Run `pnpm install` once in the package repo before installing it into pi.
 
@@ -64,9 +76,9 @@ cd /absolute/path/to/pi-tutor
 pnpm install
 ```
 
-### Global install
+### Local path install
 
-Use this when you want `pi-tutor` available everywhere:
+Use this when developing on the package itself:
 
 ```bash
 pi install /absolute/path/to/pi-tutor
@@ -121,36 +133,6 @@ What `/reload` should pick up:
 - prompt template changes
 - skill changes
 - README / packaging changes are still verified by tests and smoke checks outside pi
-
-## Install from a tarball
-
-This is the publish-ready smoke path.
-
-Pi currently treats a local `.tgz` path as a file, not as a package source, so the reproducible tarball flow is:
-
-1. create the tarball
-2. unpack it into a clean temporary directory
-3. point `pi install -l` at the extracted `package/` directory
-
-```bash
-cd /absolute/path/to/pi-tutor
-pnpm install
-
-pack_dir="$(mktemp -d)"
-pnpm pack --pack-destination "$pack_dir"
-tarball="$(find "$pack_dir" -maxdepth 1 -name '*.tgz' | head -n 1)"
-unpack_dir="$(mktemp -d)"
-tar -xzf "$tarball" -C "$unpack_dir"
-
-export PI_CODING_AGENT_DIR="$(mktemp -d)"
-tmp_proj="$(mktemp -d)"
-cd "$tmp_proj"
-
-pi install -l "$unpack_dir/package"
-pi list
-```
-
-`pnpm pack:smoke` automates this extracted-tarball flow and verifies that the packaged resources are discoverable after install.
 
 ## Everyday usage examples
 
@@ -255,7 +237,7 @@ pi --no-session -e /absolute/path/to/pi-tutor/extensions/pi-tutor/index.ts
 
 For a clean-environment verification run, check that:
 
-- `pi list` shows the installed local path or extracted tarball directory containing `pi-tutor`
+- `pi list` shows the installed package source containing `pi-tutor`
 - the package works with a fresh `PI_CODING_AGENT_DIR`
 - no existing learner/profile state is required
 - `/start_tutoring`, `/hint`, `/reflect`, and `/next_step` are available after install
