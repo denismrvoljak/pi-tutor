@@ -20,6 +20,7 @@ test("tutor-implementation skill defines a track-aware hint ladder and progress 
   assert.match(skill, /Level 2/i);
   assert.match(skill, /Level 3/i);
   assert.match(skill, /track\.md/);
+  assert.match(skill, /project\.md/);
   assert.match(skill, /roadmap\.md/);
   assert.match(skill, /progress\.md/);
   assert.match(skill, /Update progress\.md after meaningful completions or reflections/i);
@@ -33,6 +34,7 @@ test("tutor-learn-topic skill teaches in small chunks with understanding checks 
   assert.match(skill, /disable-model-invocation:\s*true/i);
   assert.match(skill, /small chunks/i);
   assert.match(skill, /(check-for-understanding|check for understanding|active-recall)/i);
+  assert.match(skill, /project\.md/);
   assert.match(skill, /roadmap\.md/);
   assert.match(skill, /(practice|exercise)/i);
   assert.match(skill, /progress\.md/);
@@ -45,8 +47,10 @@ test("start_tutoring prompt starts or resumes a markdown-first track-aware tutor
   assert.match(prompt, /attempt-first/i);
   assert.match(prompt, /hint-first/i);
   assert.match(prompt, /track\.md/);
+  assert.match(prompt, /project\.md/);
   assert.match(prompt, /roadmap\.md/);
   assert.match(prompt, /progress\.md/);
+  assert.match(prompt, /Journey status/i);
   assert.match(prompt, /hidden active-track state/i);
 });
 
@@ -58,6 +62,7 @@ test("hint prompt defines a leveled hint ladder instead of jumping to a full sol
   assert.match(prompt, /Level 3/i);
   assert.match(prompt, /Full solution/i);
   assert.match(prompt, /track\.md/);
+  assert.match(prompt, /project\.md/);
   assert.match(prompt, /roadmap\.md/);
   assert.match(prompt, /progress\.md/);
 });
@@ -68,6 +73,9 @@ test("reflect and next_step prompts explicitly maintain progress.md", () => {
     const prompt = readText(relativePath);
 
     assert.match(prompt, /progress\.md/);
+    assert.match(prompt, /project\.md/);
+    assert.match(prompt, /roadmap\.md/);
+    assert.match(prompt, /(Journey status|roadmap checkbox)/i);
     assert.match(prompt, /Reflections/i);
     assert.match(prompt, /Blockers/i);
     assert.match(prompt, /Next step/i);

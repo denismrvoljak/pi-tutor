@@ -68,6 +68,7 @@ ${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
 └── tracks/
     └── <topic-folder>/
         ├── track.md
+        ├── project.md
         ├── roadmap.md
         └── progress.md
 ```
@@ -77,8 +78,9 @@ The folder name is just a short filesystem-safe topic name.
 File roles:
 
 - `track.md` — what the track is about, keywords, learner-specific notes
-- `roadmap.md` — milestones and exercises
-- `progress.md` — current focus, completed work, reflections, blockers, next step
+- `project.md` — concrete project brief (goal, scope, acceptance criteria, constraints, deliverables)
+- `roadmap.md` — milestones and checkbox todo tasks/exercises (`- [ ]` / `- [x]`)
+- `progress.md` — journey status (roadmap completion), current focus, completed work, reflections, blockers, next step
 
 This package is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
 
@@ -176,7 +178,8 @@ I want to keep learning Redis caching patterns
 Expected outcome:
 
 - if no matching track exists, pi creates `tracks/<topic-folder>/`
-- the new track gets `track.md`, `roadmap.md`, and `progress.md`
+- the new track gets `track.md`, `project.md`, `roadmap.md`, and `progress.md`
+- roadmap tasks are tracked as markdown checkboxes and mirrored into progress journey status
 
 ### 3. Resume an existing track
 
@@ -188,7 +191,7 @@ I want to keep learning SQL joins
 Expected outcome:
 
 - pi matches the saved track heuristically
-- pi injects the matching `track.md`, `roadmap.md`, and `progress.md`
+- pi injects the matching `track.md`, `project.md`, `roadmap.md`, and `progress.md`
 - tutoring resumes from the current focus or next step
 
 ### 4. Ask for the next hint

@@ -13,13 +13,14 @@ Use this skill when the learner wants to understand a concept, build intuition, 
 Assume the extension may already have injected:
 - `learner-profile.md`
 - matched `track.md`
+- matched `project.md`
 - matched `roadmap.md`
 - matched `progress.md`
 
 Use that context to choose scope and pace. Stay markdown-first and do not rely on hidden active-track state.
 
 If no track is matched:
-- if the topic is clear, create or continue a markdown track under `tracks/<topic-folder>/`
+- if the topic is clear, create or continue a markdown track under `tracks/<topic-folder>/` and include a `project.md` brief
 - use a short filesystem-safe folder name
 - if the topic is ambiguous, ask one short clarifying question
 
@@ -35,6 +36,7 @@ If no track is matched:
 ## Tie teaching back to the roadmap
 
 - use `track.md` for topic framing and keywords
+- use `project.md` to keep learning anchored to a concrete build outcome
 - use `roadmap.md` to decide which concept comes next and which practice fits now
 - use `progress.md` to avoid repeating finished work and to target blockers
 
@@ -43,6 +45,9 @@ If no track is matched:
 Update `progress.md` after meaningful completions or reflections.
 
 When relevant:
+- mark completed roadmap tasks with checkboxes in `roadmap.md` (`- [x]`)
+- keep roadmap tasks as checkbox todos (`- [ ]` / `- [x]`)
+- keep `## Journey status` in `progress.md` synchronized with roadmap completion counts
 - add completed exercises or milestones to `## Completed`
 - record what clicked or stayed fuzzy in `## Reflections`
 - update `## Blockers`

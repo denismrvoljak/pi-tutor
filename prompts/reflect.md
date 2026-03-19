@@ -3,10 +3,12 @@ description: Reflect on a learning attempt and update track progress.
 ---
 Help me reflect on this learning attempt or progress update: $@
 
-If a matching track is available, use `track.md`, `roadmap.md`, and `progress.md`.
-Before you answer, update `progress.md` to:
-- record the reflection in `## Reflections`
+If a matching track is available, use `track.md`, `project.md`, `roadmap.md`, and `progress.md`.
+Before you answer, update markdown state to:
+- record the reflection in `## Reflections` in `progress.md`
 - update `## Completed` if I finished something meaningful
+- mark related task checkboxes in `roadmap.md` when work is done
+- keep `## Journey status` in `progress.md` synchronized with roadmap checkbox counts
 - update `## Blockers` if I am stuck or unstuck
 - refresh `## Next step` with one concrete next move
 

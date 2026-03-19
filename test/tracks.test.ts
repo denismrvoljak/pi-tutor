@@ -9,6 +9,7 @@ import { renderLearnerProfileMarkdown, saveLearnerProfileMarkdown } from "../src
 import {
   buildTrackContextPrompt,
   buildTrackCreationPrompt,
+  extractRoadmapChecklistStats,
   matchTrackFromPrompt,
   renderProgressMarkdown,
   renderRoadmapMarkdown,
@@ -107,6 +108,7 @@ test("track helpers create markdown-first self-contained directories", () => {
   const paths = resolveTrackPaths("sql-foundations", "/tmp/pi-agent");
   assert.equal(paths.dir, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations");
   assert.equal(paths.track, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md");
+  assert.equal(paths.project, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md");
   assert.equal(paths.roadmap, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md");
   assert.equal(paths.progress, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md");
 });
@@ -119,14 +121,29 @@ test("rendered progress markdown keeps next-step and reflection sections", () =>
     completed: ["Basic SELECT queries"],
     reflections: ["JOIN direction still feels shaky."],
     blockers: ["LEFT JOIN filter placement confusion"],
+    roadmapCompleted: 1,
+    roadmapTotal: 4,
     updatedAt: "2026-03-17T18:00:00.000Z",
   });
 
   assert.match(progress, /# Progress — SQL Foundations/);
+  assert.match(progress, /## Journey status/);
+  assert.match(progress, /1\/4 \(25%\)/);
   assert.match(progress, /## Next step/);
   assert.match(progress, /Practice LEFT JOIN filtering/);
   assert.match(progress, /## Reflections/);
   assert.match(progress, /JOIN direction still feels shaky/);
+});
+
+test("extractRoadmapChecklistStats derives completion percentage from markdown checkboxes", () => {
+  const stats = extractRoadmapChecklistStats(`## Exercises\n- [x] Finish lesson 1\n- [ ] Finish lesson 2\n- [ ] Finish lesson 3\n`);
+
+  assert.equal(stats.completed, 1);
+  assert.equal(stats.remaining, 2);
+  assert.equal(stats.total, 3);
+  assert.equal(stats.completionPercent, 33);
+  assert.deepEqual(stats.completedItems, ["Finish lesson 1"]);
+  assert.deepEqual(stats.remainingItems, ["Finish lesson 2", "Finish lesson 3"]);
 });
 
 test("matchTrackFromPrompt picks the right track from natural-language topic references", async () => {
@@ -204,16 +221,21 @@ test("buildTrackContextPrompt includes roadmap, progress, next step, and update 
     slug: "sql-foundations",
     dir: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations",
     trackPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md",
+    projectPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md",
     roadmapPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md",
     progressPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md",
     trackMarkdown: "# Track: SQL Foundations\n",
-    roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n",
+    projectMarkdown: "# Project Brief — SQL Foundations\n",
+    roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n- [x] Exercise 1\n- [ ] Exercise 2\n",
     progressMarkdown: "# Progress — SQL Foundations\n## Next step\nPractice LEFT JOIN filtering.\n",
   });
 
   assert.match(prompt, /Matched learning track: sql-foundations/);
   assert.match(prompt, /progress\.md/);
   assert.match(prompt, /roadmap\.md/);
+  assert.match(prompt, /project\.md/);
+  assert.match(prompt, /Checklist snapshot/i);
+  assert.match(prompt, /Roadmap tasks complete: 1\/2 \(50%\)/i);
   assert.match(prompt, /Update progress\.md after meaningful completions or reflections/i);
   assert.match(prompt, /Next step/i);
 });
@@ -223,10 +245,12 @@ test("buildTrackContextPrompt explicitly covers reflect and next-step updates wi
     slug: "sql-foundations",
     dir: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations",
     trackPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md",
+    projectPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md",
     roadmapPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md",
     progressPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md",
     trackMarkdown: "# Track: SQL Foundations\n",
-    roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n",
+    projectMarkdown: "# Project Brief — SQL Foundations\n",
+    roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n- [x] Exercise 1\n- [ ] Exercise 2\n",
     progressMarkdown: "# Progress — SQL Foundations\n## Next step\nPractice LEFT JOIN filtering.\n",
   });
 
@@ -242,8 +266,11 @@ test("buildTrackCreationPrompt keeps new tracks markdown-first and topic-named",
   assert.match(prompt, /hidden active-track state/i);
   assert.match(prompt, /name the topic clearly/i);
   assert.match(prompt, /track\.md/);
+  assert.match(prompt, /project\.md/);
   assert.match(prompt, /roadmap\.md/);
+  assert.match(prompt, /checkbox/i);
   assert.match(prompt, /progress\.md/);
+  assert.match(prompt, /Journey status/i);
 });
 
 test("extension injects matched track context for new sessions that name a saved topic", async () => {
@@ -321,6 +348,7 @@ test("extension injects matched track context for new sessions that name a saved
     assert.match(prompt, /Matched learning track: sql-foundations/);
     assert.match(prompt, /Roadmap — SQL Foundations/);
     assert.match(prompt, /Progress — SQL Foundations/);
+    assert.match(prompt, /Checklist snapshot/);
     assert.match(prompt, /Practice LEFT JOIN filtering with one debugging exercise/);
     assert.match(prompt, /Update progress\.md after meaningful completions or reflections/i);
   } finally {

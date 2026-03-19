@@ -5,12 +5,14 @@ import { resolveTutorDataDir } from "./learner-profile.ts";
 
 export const TRACKS_DIRNAME = "tracks";
 export const TRACK_FILENAME = "track.md";
+export const PROJECT_FILENAME = "project.md";
 export const ROADMAP_FILENAME = "roadmap.md";
 export const PROGRESS_FILENAME = "progress.md";
 
 export interface TrackPaths {
   dir: string;
   track: string;
+  project: string;
   roadmap: string;
   progress: string;
 }
@@ -18,6 +20,7 @@ export interface TrackPaths {
 export interface TrackMarkdownSetInput {
   slug: string;
   track: string;
+  project?: string;
   roadmap: string;
   progress: string;
 }
@@ -26,9 +29,11 @@ export interface TrackMarkdownSet {
   slug: string;
   dir: string;
   trackPath: string;
+  projectPath: string;
   roadmapPath: string;
   progressPath: string;
   trackMarkdown: string;
+  projectMarkdown: string;
   roadmapMarkdown: string;
   progressMarkdown: string;
 }
@@ -41,6 +46,16 @@ export interface RenderTrackMarkdownInput {
   keywords?: string[];
   relatedGoals?: string[];
   notes?: string[];
+}
+
+export interface RenderProjectMarkdownInput {
+  title: string;
+  goal: string;
+  learnerOutcome: string;
+  scope?: string[];
+  acceptanceCriteria?: string[];
+  constraints?: string[];
+  deliverables?: string[];
 }
 
 export interface RenderRoadmapMilestoneInput {
@@ -62,7 +77,18 @@ export interface RenderProgressMarkdownInput {
   completed?: string[];
   reflections?: string[];
   blockers?: string[];
+  roadmapCompleted?: number;
+  roadmapTotal?: number;
   updatedAt?: string;
+}
+
+export interface RoadmapChecklistStats {
+  total: number;
+  completed: number;
+  remaining: number;
+  completionPercent: number;
+  completedItems: string[];
+  remainingItems: string[];
 }
 
 const STOP_WORDS = new Set([
@@ -112,6 +138,7 @@ export function resolveTrackPaths(slug: string, agentDir = getAgentDir()): Track
   return {
     dir,
     track: join(dir, TRACK_FILENAME),
+    project: join(dir, PROJECT_FILENAME),
     roadmap: join(dir, ROADMAP_FILENAME),
     progress: join(dir, PROGRESS_FILENAME),
   };
@@ -151,6 +178,33 @@ export function renderTrackMarkdown(input: RenderTrackMarkdownInput): string {
   return lines.join("\n");
 }
 
+export function renderProjectMarkdown(input: RenderProjectMarkdownInput): string {
+  const lines = [
+    `# Project Brief — ${input.title}`,
+    "",
+    "## Project goal",
+    input.goal,
+    "",
+    "## Learner outcome",
+    input.learnerOutcome,
+    "",
+    ...renderBulletSection("Scope", input.scope ?? [], "No scope details recorded yet"),
+    "",
+    ...renderBulletSection(
+      "Acceptance criteria",
+      input.acceptanceCriteria ?? [],
+      "No acceptance criteria recorded yet",
+    ),
+    "",
+    ...renderBulletSection("Constraints", input.constraints ?? [], "No constraints recorded yet"),
+    "",
+    ...renderBulletSection("Deliverables", input.deliverables ?? [], "No deliverables recorded yet"),
+    "",
+  ];
+
+  return lines.join("\n");
+}
+
 export function renderRoadmapMarkdown(input: RenderRoadmapMarkdownInput): string {
   const lines = [`# Roadmap — ${input.title}`, "", "## Milestones"];
 
@@ -178,10 +232,55 @@ export function renderRoadmapMarkdown(input: RenderRoadmapMarkdownInput): string
   return lines.join("\n");
 }
 
+export function extractRoadmapChecklistStats(roadmapMarkdown: string): RoadmapChecklistStats {
+  const lines = roadmapMarkdown.split("\n");
+  const checkedItems: string[] = [];
+  const uncheckedItems: string[] = [];
+
+  for (const line of lines) {
+    const checkedMatch = line.match(/^\s*-\s*\[x\]\s+(.+)$/i);
+    if (checkedMatch) {
+      const item = (checkedMatch[1] ?? "").trim();
+      if (item.length > 0 && !/no exercises recorded yet/i.test(item)) {
+        checkedItems.push(item);
+      }
+      continue;
+    }
+
+    const uncheckedMatch = line.match(/^\s*-\s*\[\s\]\s+(.+)$/i);
+    if (uncheckedMatch) {
+      const item = (uncheckedMatch[1] ?? "").trim();
+      if (item.length > 0 && !/no exercises recorded yet/i.test(item)) {
+        uncheckedItems.push(item);
+      }
+    }
+  }
+
+  const completed = checkedItems.length;
+  const remaining = uncheckedItems.length;
+  const total = completed + remaining;
+  const completionPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  return {
+    total,
+    completed,
+    remaining,
+    completionPercent,
+    completedItems: checkedItems,
+    remainingItems: uncheckedItems,
+  };
+}
+
 export function renderProgressMarkdown(input: RenderProgressMarkdownInput): string {
   const updatedAt = input.updatedAt ?? new Date().toISOString();
+  const completedCount = input.roadmapCompleted ?? 0;
+  const totalCount = input.roadmapTotal ?? 0;
+  const completionPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const lines = [
     `# Progress — ${input.title}`,
+    "",
+    "## Journey status",
+    `- Roadmap tasks complete: ${completedCount}/${totalCount} (${completionPercent}%)`,
     "",
     "## Current focus",
     input.currentFocus,
@@ -220,6 +319,12 @@ export async function saveTrackMarkdownSet(input: TrackMarkdownSetInput, agentDi
   await mkdir(paths.dir, { recursive: true });
   const normalize = (value: string) => (value.endsWith("\n") ? value : `${value}\n`);
   await writeFile(paths.track, normalize(input.track), "utf8");
+  const defaultProjectMarkdown = renderProjectMarkdown({
+    title: getHeadingTitle(input.track) ?? input.slug,
+    goal: "Define the concrete project this learning track will build.",
+    learnerOutcome: "Be able to explain and implement the project independently.",
+  });
+  await writeFile(paths.project, normalize(input.project ?? defaultProjectMarkdown), "utf8");
   await writeFile(paths.roadmap, normalize(input.roadmap), "utf8");
   await writeFile(paths.progress, normalize(input.progress), "utf8");
   return paths;
@@ -234,13 +339,27 @@ export async function loadTrackMarkdownSet(slug: string, agentDir = getAgentDir(
     slug,
     dir: paths.dir,
     trackPath: paths.track,
+    projectPath: paths.project,
     roadmapPath: paths.roadmap,
     progressPath: paths.progress,
     trackMarkdown,
+    projectMarkdown:
+      (await readIfExists(paths.project)) ??
+      renderProjectMarkdown({
+        title: getHeadingTitle(trackMarkdown) ?? slug,
+        goal: "Define the concrete project this learning track will build.",
+        learnerOutcome: "Be able to explain and implement the project independently.",
+      }),
     roadmapMarkdown: (await readIfExists(paths.roadmap)) ?? `# Roadmap — ${slug}\n\n## Milestones\n- No milestones recorded yet.\n`,
     progressMarkdown:
       (await readIfExists(paths.progress)) ??
-      `# Progress — ${slug}\n\n## Current focus\nNot recorded yet.\n\n## Next step\nDecide the next step.\n`,
+      renderProgressMarkdown({
+        title: getHeadingTitle(trackMarkdown) ?? slug,
+        currentFocus: "Not recorded yet.",
+        nextStep: "Decide the next step.",
+        roadmapCompleted: 0,
+        roadmapTotal: 0,
+      }),
   };
 }
 
@@ -354,20 +473,31 @@ export async function matchTrackFromPrompt(prompt: string, agentDir = getAgentDi
 }
 
 export function shouldConsiderTrack(prompt: string): boolean {
-  return /(learn|learning|continue|resume|track|roadmap|progress|reflect|practice|next step)/i.test(prompt);
+  return /(learn|learning|study|studying|road ?map|curriculum|plan|track|continue|resume|progress|reflect|practice|next step|project)/i.test(
+    prompt,
+  );
 }
 
 export function buildTrackContextPrompt(track: TrackMarkdownSet): string {
+  const checklist = extractRoadmapChecklistStats(track.roadmapMarkdown);
+
   return [
     `Matched learning track: ${track.slug}`,
     "Use this self-contained track directory as the active learning stream for the current request.",
     "Track paths:",
     `- track.md: ${track.trackPath}`,
+    `- project.md: ${track.projectPath}`,
     `- roadmap.md: ${track.roadmapPath}`,
     `- progress.md: ${track.progressPath}`,
+    "Checklist snapshot:",
+    `- Roadmap tasks complete: ${checklist.completed}/${checklist.total} (${checklist.completionPercent}%)`,
     "Rules:",
     "- Continue within this track instead of starting a brand-new one.",
+    "- Keep project.md up to date with the project goal, scope, and acceptance criteria.",
     "- Keep roadmap.md focused on milestones and concept-linked exercises.",
+    "- Roadmap tasks in roadmap.md must use markdown checkboxes (- [ ] / - [x]) so progress is trackable.",
+    "- When the learner completes a roadmap task, mark the matching checkbox in roadmap.md and mirror the completion in progress.md.",
+    "- Keep the Journey status line in progress.md synchronized with roadmap checkbox completion counts.",
     "- Update progress.md after meaningful completions or reflections.",
     "- Keep the Next step section in progress.md current, concrete, and actionable.",
     "- If the user reflects, reports progress, or gets stuck, record it in progress.md and adjust blockers/completed items/next step.",
@@ -376,6 +506,8 @@ export function buildTrackContextPrompt(track: TrackMarkdownSet): string {
     "Current track files:",
     `--- ${TRACK_FILENAME} (${track.trackPath}) ---`,
     track.trackMarkdown.trim(),
+    `--- ${PROJECT_FILENAME} (${track.projectPath}) ---`,
+    track.projectMarkdown.trim(),
     `--- ${ROADMAP_FILENAME} (${track.roadmapPath}) ---`,
     track.roadmapMarkdown.trim(),
     `--- ${PROGRESS_FILENAME} (${track.progressPath}) ---`,
@@ -387,8 +519,12 @@ export function buildTrackCreationPrompt(tracksRoot: string): string {
   return [
     "No matching learning track was found for the current request.",
     `If the user is clearly starting or resuming a learning topic/project stream, create a new self-contained track directory under ${tracksRoot}/<topic-folder>/.`,
+    "Enforcement:",
+    "- If the topic/project is clear, create the track files first in the same turn before giving tutoring advice.",
+    "- Only ask a clarifying question when the topic/project is ambiguous.",
     "Required files:",
     `- ${TRACK_FILENAME}`,
+    `- ${PROJECT_FILENAME}`,
     `- ${ROADMAP_FILENAME}`,
     `- ${PROGRESS_FILENAME}`,
     "Rules:",
@@ -396,8 +532,11 @@ export function buildTrackCreationPrompt(tracksRoot: string): string {
     "- Do not rely on hidden active-track state; the learner should be able to resume when they name the topic clearly.",
     "- Infer a short stable folder name from the topic or project.",
     "- track.md should summarize the topic/project, keywords, and learner-specific notes.",
+    "- project.md must describe the concrete build (goal, scope, acceptance criteria, constraints, deliverables).",
     "- roadmap.md should contain milestones and concept-linked exercises.",
-    "- progress.md should contain current focus, completed items, reflections, blockers, and a Next step section.",
+    "- roadmap.md must include markdown checkbox todo items (- [ ] / - [x]) for tasks/exercises.",
+    "- progress.md should contain Journey status, current focus, completed items, reflections, blockers, and a Next step section.",
+    "- Keep Journey status counts in progress.md synchronized with roadmap checkbox completion.",
     "- If the learner asks what to do next or shares a reflection, update progress.md before answering.",
     "- If the request is ambiguous, ask one short clarifying question instead of creating the wrong track.",
     "Suggested templates:",
@@ -406,6 +545,15 @@ export function buildTrackCreationPrompt(tracksRoot: string): string {
       summary: "<What this track is about and why it matters>",
       keywords: ["<keyword 1>", "<keyword 2>"],
       notes: ["<Learner-specific note>"],
+    }).trim(),
+    renderProjectMarkdown({
+      title: "<Track title>",
+      goal: "<What project should be built in this track>",
+      learnerOutcome: "<What the learner can do after building it>",
+      scope: ["<Scope item 1>", "<Scope item 2>"],
+      acceptanceCriteria: ["<Acceptance criterion 1>"],
+      constraints: ["<Constraint 1>"],
+      deliverables: ["<Deliverable 1>"],
     }).trim(),
     renderRoadmapMarkdown({
       title: "<Track title>",
@@ -425,6 +573,8 @@ export function buildTrackCreationPrompt(tracksRoot: string): string {
       completed: [],
       reflections: ["<Initial reflection>"],
       blockers: [],
+      roadmapCompleted: 0,
+      roadmapTotal: 0,
       updatedAt: "<ISO timestamp>",
     }).trim(),
   ].join("\n\n");
