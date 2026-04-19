@@ -1,6 +1,10 @@
 # pi-tutor
 
-### Personal coding tutor for pi
+```bash
+pi install npm:pi-tutor
+```
+
+Personal coding tutor for pi.
 
 `pi-tutor` turns pi into a teaching-oriented coding assistant.
 
@@ -8,7 +12,7 @@ It adapts to how you like to learn, remembers what you're learning, resumes topi
 
 ## What this is
 
-`pi-tutor` is a tutor extension for pi. It is meant for learning while coding — not just getting answers, but building understanding, practicing in small steps, and keeping momentum across sessions.
+`pi-tutor` is a tutor package for pi. It is meant for learning while coding — not just getting answers, but building understanding, practicing in small steps, and keeping momentum across sessions.
 
 ## What it does
 
@@ -19,18 +23,42 @@ It adapts to how you like to learn, remembers what you're learning, resumes topi
 - helps you reflect on progress, blockers, and what to do next
 - supports learning through small projects, exercises, and repeated practice
 
-## Quick start
+## Install
 
-### npm
+### From npm
 
 ```bash
-pi install pi-tutor
+pi install npm:pi-tutor
 ```
 
-### GitHub
+### From GitHub
 
 ```bash
 pi install https://github.com/denismrvoljak/pi-tutor
+```
+
+### Local path install
+
+Use this when developing on the package itself:
+
+```bash
+pi install /absolute/path/to/pi-tutor
+pi list
+```
+
+### Project-local install
+
+Use this when you want a clean temporary environment or project-scoped setup:
+
+```bash
+pi install -l /absolute/path/to/pi-tutor
+pi list
+```
+
+### One-off test
+
+```bash
+pi -e npm:pi-tutor
 ```
 
 Then open pi and enable tutor mode:
@@ -101,18 +129,7 @@ cd /absolute/path/to/pi-tutor
 pnpm install
 ```
 
-### Local path install
-
-Use this when developing on the package itself:
-
-```bash
-pi install /absolute/path/to/pi-tutor
-pi list
-```
-
-### Project-local install
-
-Use this when you want a clean temporary environment or project-scoped setup:
+For a clean project-local dev check:
 
 ```bash
 cd /absolute/path/to/pi-tutor

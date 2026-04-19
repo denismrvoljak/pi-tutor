@@ -90,10 +90,11 @@ test("workflow resources are concrete track-aware package contents instead of pl
 test("README documents GitHub install, local dev install, reload, workflow usage, state layout, and current limitations", () => {
   const readme = readText("README.md");
 
-  assert.match(readme, /pi install pi-tutor/);
+  assert.match(readme, /pi install npm:pi-tutor/);
   assert.match(readme, /pi install https:\/\/github\.com\/denismrvoljak\/pi-tutor/);
   assert.match(readme, /pi install \/absolute\/path\/to\/pi-tutor/);
   assert.match(readme, /pi install -l \/absolute\/path\/to\/pi-tutor/);
+  assert.match(readme, /pi -e npm:pi-tutor/);
   assert.match(readme, /\/reload/);
   assert.match(readme, /\/tutor on/);
   assert.match(readme, /\/hint/);
