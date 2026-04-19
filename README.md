@@ -21,6 +21,14 @@ It adapts to how you like to learn, remembers what you're learning, resumes topi
 
 ## Quick start
 
+### npm
+
+```bash
+pi install pi-tutor
+```
+
+### GitHub
+
 ```bash
 pi install https://github.com/denismrvoljak/pi-tutor
 ```

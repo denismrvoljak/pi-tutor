@@ -1,8 +1,8 @@
 {
   "name": "pi-tutor",
   "version": "0.1.0",
-  "description": "Stateful tutor mode package for pi.",
-  "private": true,
+  "description": "A stateful tutor package for pi that adds hint-first, track-aware teaching workflows.",
+  "author": "Denis Mrvoljak",
   "type": "module",
   "scripts": {
     "build": "tsc --project tsconfig.json",
@@ -13,6 +13,7 @@
   },
   "files": [
     "README.md",
+    "LICENSE",
     "extensions",
     "prompts",
     "skills",
@@ -46,6 +47,14 @@
   "engines": {
     "node": ">=20.6.0",
     "pnpm": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/denismrvoljak/pi-tutor.git"
+  },
+  "homepage": "https://github.com/denismrvoljak/pi-tutor",
+  "bugs": {
+    "url": "https://github.com/denismrvoljak/pi-tutor/issues"
   },
   "devDependencies": {
     "@mariozechner/pi-ai": "0.58.1",

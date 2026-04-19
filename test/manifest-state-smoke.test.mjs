@@ -21,7 +21,7 @@ test("package.json exposes a pi manifest for extensions, skills, and prompts", (
   });
 });
 
-test("package.json declares the required pi peer dependencies", () => {
+test("package.json declares the required pi peer dependencies and publish metadata", () => {
   const pkg = readJson("package.json");
 
   for (const dependencyName of [
@@ -32,6 +32,12 @@ test("package.json declares the required pi peer dependencies", () => {
   ]) {
     assert.equal(typeof pkg.peerDependencies?.[dependencyName], "string", `${dependencyName} should be a peer dependency`);
   }
+
+  assert.equal(pkg.author, "Denis Mrvoljak");
+  assert.equal(pkg.repository?.type, "git");
+  assert.match(pkg.repository?.url ?? "", /github\.com\/denismrvoljak\/pi-tutor\.git/);
+  assert.match(pkg.homepage ?? "", /github\.com\/denismrvoljak\/pi-tutor/);
+  assert.match(pkg.bugs?.url ?? "", /github\.com\/denismrvoljak\/pi-tutor\/issues/);
 });
 
 test("state model source defines learner, roadmap, and progress schemas", () => {
@@ -84,6 +90,7 @@ test("workflow resources are concrete track-aware package contents instead of pl
 test("README documents GitHub install, local dev install, reload, workflow usage, state layout, and current limitations", () => {
   const readme = readText("README.md");
 
+  assert.match(readme, /pi install pi-tutor/);
   assert.match(readme, /pi install https:\/\/github\.com\/denismrvoljak\/pi-tutor/);
   assert.match(readme, /pi install \/absolute\/path\/to\/pi-tutor/);
   assert.match(readme, /pi install -l \/absolute\/path\/to\/pi-tutor/);

@@ -29,6 +29,8 @@ test("package.json exposes phase-1 bootstrap scripts", () => {
 
   assert.equal(pkg.name, "pi-tutor");
   assert.equal(pkg.type, "module");
+  assert.equal(pkg.private, undefined);
+  assert.equal(pkg.author, "Denis Mrvoljak");
 
   for (const scriptName of ["build", "typecheck", "test", "check", "pack:smoke"]) {
     assert.equal(typeof pkg.scripts?.[scriptName], "string");
