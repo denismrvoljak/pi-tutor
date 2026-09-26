@@ -1,0 +1,54 @@
+<svg width="1280" height="400" viewBox="0 0 1280 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="pi-tutor — hints before solutions, learning that remembers">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#12182B"/>
+      <stop offset="1" stop-color="#0A0E1A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="18%" cy="38%" r="60%">
+      <stop offset="0" stop-color="#E8A33D" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#E8A33D" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#EDE6D6"/>
+    </pattern>
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#E8A33D" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#E8A33D" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <rect width="1280" height="400" fill="url(#glow)"/>
+  <rect width="1280" height="400" fill="url(#dots)" opacity="0.05"/>
+
+  <!-- track rail: learning tracks, resumed over time -->
+  <g>
+    <line x1="120" y1="316" x2="660" y2="316" stroke="#3A4362" stroke-width="2" stroke-linecap="round"/>
+    <line x1="660" y1="316" x2="1160" y2="316" stroke="#3A4362" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10"/>
+
+    <circle cx="120" cy="316" r="5" fill="#3A4362"/>
+    <circle cx="305" cy="316" r="5" fill="#3A4362"/>
+    <circle cx="480" cy="316" r="5" fill="#3A4362"/>
+
+    <circle cx="660" cy="316" r="15" fill="url(#nodeGlow)"/>
+    <circle cx="660" cy="316" r="7.5" fill="#E8A33D"/>
+    <circle cx="660" cy="316" r="12" fill="none" stroke="#E8A33D" stroke-width="1.5" opacity="0.6"/>
+
+    <circle cx="845" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
+    <circle cx="1015" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
+    <circle cx="1160" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
+  </g>
+
+  <!-- pi glyph -->
+  <text x="86" y="266" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="248" fill="#EDE6D6">&#960;</text>
+  <line x1="92" y1="292" x2="330" y2="292" stroke="#E8A33D" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+
+  <!-- wordmark -->
+  <text x="424" y="196" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="66" font-weight="600" fill="#EDE6D6" letter-spacing="0.5">pi<tspan fill="#E8A33D">-tutor</tspan></text>
+
+  <!-- tagline -->
+  <text x="426" y="234" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" letter-spacing="2.5" fill="#7C8AA0">HINTS BEFORE SOLUTIONS &#183; LEARNING THAT REMEMBERS</text>
+
+  <!-- footer -->
+  <text x="1160" y="368" text-anchor="end" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="16" fill="#3A4362">pi install npm:pi-tutor</text>
+</svg>
