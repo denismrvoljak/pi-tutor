@@ -1,8 +1,8 @@
+import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { basename, join } from "node:path";
-import { getAgentDir } from "@mariozechner/pi-coding-agent";
-import { resolveTutorDataDir } from "./learner-profile.ts";
+import { basename, dirname, join } from "node:path";
 
+export const TUTOR_PROJECT_DIRNAME = ".pi-tutor";
 export const TRACKS_DIRNAME = "tracks";
 export const TRACK_FILENAME = "track.md";
 export const PROJECT_FILENAME = "project.md";
@@ -119,8 +119,23 @@ const STOP_WORDS = new Set([
   "about",
 ]);
 
-export function resolveTracksRoot(agentDir = getAgentDir()): string {
-  return join(resolveTutorDataDir(agentDir), TRACKS_DIRNAME);
+/**
+ * Tracks are project-scoped: walk up from `startDir` to the nearest ancestor
+ * containing `.git` (repo root, including worktrees where `.git` is a file).
+ * Falls back to `startDir` itself when no `.git` is found.
+ */
+export function resolveProjectRoot(startDir = process.cwd()): string {
+  let dir = startDir;
+  while (true) {
+    if (existsSync(join(dir, ".git"))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) return startDir;
+    dir = parent;
+  }
+}
+
+export function resolveTracksRoot(projectRoot = resolveProjectRoot()): string {
+  return join(projectRoot, TUTOR_PROJECT_DIRNAME, TRACKS_DIRNAME);
 }
 
 export function slugifyTrackName(name: string): string {
@@ -133,8 +148,8 @@ export function slugifyTrackName(name: string): string {
   return slug || "track";
 }
 
-export function resolveTrackPaths(slug: string, agentDir = getAgentDir()): TrackPaths {
-  const dir = join(resolveTracksRoot(agentDir), slug);
+export function resolveTrackPaths(slug: string, projectRoot = resolveProjectRoot()): TrackPaths {
+  const dir = join(resolveTracksRoot(projectRoot), slug);
   return {
     dir,
     track: join(dir, TRACK_FILENAME),
@@ -314,8 +329,8 @@ async function readIfExists(path: string): Promise<string | undefined> {
   }
 }
 
-export async function saveTrackMarkdownSet(input: TrackMarkdownSetInput, agentDir = getAgentDir()): Promise<TrackPaths> {
-  const paths = resolveTrackPaths(input.slug, agentDir);
+export async function saveTrackMarkdownSet(input: TrackMarkdownSetInput, projectRoot = resolveProjectRoot()): Promise<TrackPaths> {
+  const paths = resolveTrackPaths(input.slug, projectRoot);
   await mkdir(paths.dir, { recursive: true });
   const normalize = (value: string) => (value.endsWith("\n") ? value : `${value}\n`);
   await writeFile(paths.track, normalize(input.track), "utf8");
@@ -330,8 +345,8 @@ export async function saveTrackMarkdownSet(input: TrackMarkdownSetInput, agentDi
   return paths;
 }
 
-export async function loadTrackMarkdownSet(slug: string, agentDir = getAgentDir()): Promise<TrackMarkdownSet | undefined> {
-  const paths = resolveTrackPaths(slug, agentDir);
+export async function loadTrackMarkdownSet(slug: string, projectRoot = resolveProjectRoot()): Promise<TrackMarkdownSet | undefined> {
+  const paths = resolveTrackPaths(slug, projectRoot);
   const trackMarkdown = await readIfExists(paths.track);
   if (!trackMarkdown) return undefined;
 
@@ -363,8 +378,8 @@ export async function loadTrackMarkdownSet(slug: string, agentDir = getAgentDir(
   };
 }
 
-export async function listTrackMarkdownSets(agentDir = getAgentDir()): Promise<TrackMarkdownSet[]> {
-  const root = resolveTracksRoot(agentDir);
+export async function listTrackMarkdownSets(projectRoot = resolveProjectRoot()): Promise<TrackMarkdownSet[]> {
+  const root = resolveTracksRoot(projectRoot);
   let dirEntries: Array<{ name: string; isDirectory: () => boolean }> = [];
 
   try {
@@ -377,7 +392,7 @@ export async function listTrackMarkdownSets(agentDir = getAgentDir()): Promise<T
   const tracks: TrackMarkdownSet[] = [];
   for (const dirEntry of dirEntries) {
     if (!dirEntry.isDirectory()) continue;
-    const loaded = await loadTrackMarkdownSet(dirEntry.name, agentDir);
+    const loaded = await loadTrackMarkdownSet(dirEntry.name, projectRoot);
     if (loaded) tracks.push(loaded);
   }
 
@@ -456,8 +471,8 @@ function scoreTrackMatch(prompt: string, track: TrackMarkdownSet): number {
   return score;
 }
 
-export async function matchTrackFromPrompt(prompt: string, agentDir = getAgentDir()): Promise<TrackMarkdownSet | undefined> {
-  const tracks = await listTrackMarkdownSets(agentDir);
+export async function matchTrackFromPrompt(prompt: string, projectRoot = resolveProjectRoot()): Promise<TrackMarkdownSet | undefined> {
+  const tracks = await listTrackMarkdownSets(projectRoot);
   let bestTrack: TrackMarkdownSet | undefined;
   let bestScore = 0;
 

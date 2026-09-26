@@ -10,6 +10,7 @@ import {
   buildTrackContextPrompt,
   buildTrackCreationPrompt,
   matchTrackFromPrompt,
+  resolveProjectRoot,
   resolveTracksRoot,
   shouldConsiderTrack,
 } from "../../src/tracks.ts";
@@ -227,11 +228,12 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
     return { action: "handled" };
   });
 
-  pi.on("before_agent_start", async (event) => {
+  pi.on("before_agent_start", async (event, ctx) => {
     if (!tutorModeState.enabled) return undefined;
 
     learnerProfileMarkdown = await loadLearnerProfileMarkdown();
     const profilePath = resolveLearnerProfilePath();
+    const projectRoot = resolveProjectRoot(ctx.cwd);
 
     let systemPrompt = buildTutorModeSystemPrompt(event.systemPrompt);
     if (!learnerProfileMarkdown) {
@@ -242,11 +244,11 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
     systemPrompt += `\n\n${buildLearnerProfilePrompt(learnerProfileMarkdown)}`;
 
     const userPrompt = typeof event.prompt === "string" ? event.prompt : "";
-    const matchedTrack = await matchTrackFromPrompt(userPrompt);
+    const matchedTrack = await matchTrackFromPrompt(userPrompt, projectRoot);
     if (matchedTrack) {
       systemPrompt += `\n\n${buildTrackContextPrompt(matchedTrack)}`;
     } else if (shouldConsiderTrack(userPrompt)) {
-      systemPrompt += `\n\n${buildTrackCreationPrompt(resolveTracksRoot())}`;
+      systemPrompt += `\n\n${buildTrackCreationPrompt(resolveTracksRoot(projectRoot))}`;
     }
 
     return {

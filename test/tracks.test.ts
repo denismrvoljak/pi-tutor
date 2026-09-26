@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -14,6 +14,7 @@ import {
   renderProgressMarkdown,
   renderRoadmapMarkdown,
   renderTrackMarkdown,
+  resolveProjectRoot,
   resolveTrackPaths,
   saveTrackMarkdownSet,
   slugifyTrackName,
@@ -32,7 +33,7 @@ function createTheme() {
   };
 }
 
-function createMockContext() {
+function createMockContext(cwd = "/tmp/project") {
   const statuses: Array<{ key: string; value: string | undefined }> = [];
   const widgets: Array<{ key: string; value: string[] | undefined }> = [];
 
@@ -48,7 +49,7 @@ function createMockContext() {
       },
     },
     hasUI: true,
-    cwd: "/tmp/project",
+    cwd,
     sessionManager: {
       getBranch: () => [],
       getEntries: () => [],
@@ -105,12 +106,34 @@ test("track helpers create markdown-first self-contained directories", () => {
   assert.equal(slugifyTrackName("SQL Foundations"), "sql-foundations");
   assert.equal(slugifyTrackName("Rails / Hotwire Deep Dive"), "rails-hotwire-deep-dive");
 
-  const paths = resolveTrackPaths("sql-foundations", "/tmp/pi-agent");
-  assert.equal(paths.dir, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations");
-  assert.equal(paths.track, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md");
-  assert.equal(paths.project, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md");
-  assert.equal(paths.roadmap, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md");
-  assert.equal(paths.progress, "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md");
+  const paths = resolveTrackPaths("sql-foundations", "/tmp/my-project");
+  assert.equal(paths.dir, "/tmp/my-project/.pi-tutor/tracks/sql-foundations");
+  assert.equal(paths.track, "/tmp/my-project/.pi-tutor/tracks/sql-foundations/track.md");
+  assert.equal(paths.project, "/tmp/my-project/.pi-tutor/tracks/sql-foundations/project.md");
+  assert.equal(paths.roadmap, "/tmp/my-project/.pi-tutor/tracks/sql-foundations/roadmap.md");
+  assert.equal(paths.progress, "/tmp/my-project/.pi-tutor/tracks/sql-foundations/progress.md");
+});
+
+test("resolveProjectRoot walks up to the nearest ancestor containing .git", () => {
+  const projectRoot = mkdtempSync(join(tmpdir(), "pi-tutor-project-"));
+  mkdirSync(join(projectRoot, ".git"));
+  const nestedDir = join(projectRoot, "src", "components");
+  mkdirSync(nestedDir, { recursive: true });
+
+  try {
+    assert.equal(resolveProjectRoot(nestedDir), projectRoot);
+    assert.equal(resolveProjectRoot(projectRoot), projectRoot);
+  } finally {
+    rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test("resolveProjectRoot falls back to the start directory when no .git is found", () => {
+  // A fabricated, non-existent path: existsSync is false at every ancestor,
+  // so this exercises the fallback without depending on the real filesystem's
+  // .git ancestry (which can vary across machines, e.g. dotfile-managed homedirs).
+  const looseDir = "/pi-tutor-nonexistent-test-root/a/b/c";
+  assert.equal(resolveProjectRoot(looseDir), looseDir);
 });
 
 test("rendered progress markdown keeps next-step and reflection sections", () => {
@@ -147,7 +170,7 @@ test("extractRoadmapChecklistStats derives completion percentage from markdown c
 });
 
 test("matchTrackFromPrompt picks the right track from natural-language topic references", async () => {
-  const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
+  const projectRoot = mkdtempSync(join(tmpdir(), "pi-tutor-project-"));
 
   try {
     await saveTrackMarkdownSet(
@@ -179,7 +202,7 @@ test("matchTrackFromPrompt picks the right track from natural-language topic ref
           updatedAt: "2026-03-17T18:00:00.000Z",
         }),
       },
-      agentDir,
+      projectRoot,
     );
 
     await saveTrackMarkdownSet(
@@ -204,26 +227,26 @@ test("matchTrackFromPrompt picks the right track from natural-language topic ref
           updatedAt: "2026-03-17T18:00:00.000Z",
         }),
       },
-      agentDir,
+      projectRoot,
     );
 
-    const match = await matchTrackFromPrompt("I want to keep learning SQL joins and continue where I left off.", agentDir);
+    const match = await matchTrackFromPrompt("I want to keep learning SQL joins and continue where I left off.", projectRoot);
 
     assert.equal(match?.slug, "sql-foundations");
     assert.match(match?.trackMarkdown ?? "", /SQL Foundations/);
   } finally {
-    rmSync(agentDir, { recursive: true, force: true });
+    rmSync(projectRoot, { recursive: true, force: true });
   }
 });
 
 test("buildTrackContextPrompt includes roadmap, progress, next step, and update instructions", () => {
   const prompt = buildTrackContextPrompt({
     slug: "sql-foundations",
-    dir: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations",
-    trackPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md",
-    projectPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md",
-    roadmapPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md",
-    progressPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md",
+    dir: "/tmp/my-project/.pi-tutor/tracks/sql-foundations",
+    trackPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/track.md",
+    projectPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/project.md",
+    roadmapPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/roadmap.md",
+    progressPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/progress.md",
     trackMarkdown: "# Track: SQL Foundations\n",
     projectMarkdown: "# Project Brief — SQL Foundations\n",
     roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n- [x] Exercise 1\n- [ ] Exercise 2\n",
@@ -243,11 +266,11 @@ test("buildTrackContextPrompt includes roadmap, progress, next step, and update 
 test("buildTrackContextPrompt explicitly covers reflect and next-step updates without hidden state", () => {
   const prompt = buildTrackContextPrompt({
     slug: "sql-foundations",
-    dir: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations",
-    trackPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/track.md",
-    projectPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/project.md",
-    roadmapPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/roadmap.md",
-    progressPath: "/tmp/pi-agent/pi-tutor/tracks/sql-foundations/progress.md",
+    dir: "/tmp/my-project/.pi-tutor/tracks/sql-foundations",
+    trackPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/track.md",
+    projectPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/project.md",
+    roadmapPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/roadmap.md",
+    progressPath: "/tmp/my-project/.pi-tutor/tracks/sql-foundations/progress.md",
     trackMarkdown: "# Track: SQL Foundations\n",
     projectMarkdown: "# Project Brief — SQL Foundations\n",
     roadmapMarkdown: "# Roadmap — SQL Foundations\n## Milestone 1\n- [x] Exercise 1\n- [ ] Exercise 2\n",
@@ -260,7 +283,7 @@ test("buildTrackContextPrompt explicitly covers reflect and next-step updates wi
 });
 
 test("buildTrackCreationPrompt keeps new tracks markdown-first and topic-named", () => {
-  const prompt = buildTrackCreationPrompt("/tmp/pi-agent/pi-tutor/tracks");
+  const prompt = buildTrackCreationPrompt("/tmp/my-project/.pi-tutor/tracks");
 
   assert.match(prompt, /markdown-first/i);
   assert.match(prompt, /hidden active-track state/i);
@@ -283,6 +306,8 @@ test("extension injects matched track context for new sessions that name a saved
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = agentDir;
+  const projectRoot = mkdtempSync(join(tmpdir(), "pi-tutor-project-"));
+  mkdirSync(join(projectRoot, ".git"));
 
   try {
     await saveLearnerProfileMarkdown(
@@ -332,10 +357,10 @@ test("extension injects matched track context for new sessions that name a saved
           updatedAt: "2026-03-17T19:00:00.000Z",
         }),
       },
-      agentDir,
+      projectRoot,
     );
 
-    const { ctx } = createMockContext();
+    const { ctx } = createMockContext(projectRoot);
     await sessionStart({ type: "session_start" }, ctx);
     await tutorCommand?.handler("on", ctx);
 
@@ -355,6 +380,7 @@ test("extension injects matched track context for new sessions that name a saved
     if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
     else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
     rmSync(agentDir, { recursive: true, force: true });
+    rmSync(projectRoot, { recursive: true, force: true });
   }
 });
 
@@ -368,6 +394,8 @@ test("extension injects track-creation instructions when no saved track matches 
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
   const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
   process.env.PI_CODING_AGENT_DIR = agentDir;
+  const projectRoot = mkdtempSync(join(tmpdir(), "pi-tutor-project-"));
+  mkdirSync(join(projectRoot, ".git"));
 
   try {
     await saveLearnerProfileMarkdown(
@@ -388,7 +416,7 @@ test("extension injects track-creation instructions when no saved track matches 
       agentDir,
     );
 
-    const { ctx } = createMockContext();
+    const { ctx } = createMockContext(projectRoot);
     await sessionStart({ type: "session_start" }, ctx);
     await tutorCommand?.handler("on", ctx);
 
@@ -405,9 +433,11 @@ test("extension injects track-creation instructions when no saved track matches 
     assert.match(prompt, /progress\.md/);
     assert.match(prompt, /Reflections/);
     assert.match(prompt, /Next step/);
+    assert.equal(prompt.includes(join(projectRoot, ".pi-tutor", "tracks")), true);
   } finally {
     if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
     else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
     rmSync(agentDir, { recursive: true, force: true });
+    rmSync(projectRoot, { recursive: true, force: true });
   }
 });

@@ -84,23 +84,25 @@ Then open pi and enable tutor mode:
 
 ## State layout
 
-All tutor data lives under:
-
-```text
-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
-```
+Tutor data is split across two roots: one global (learner identity), one per-project (learning tracks).
 
 ### Global learner state
 
-- `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
-
-### Per-topic track state
-
-Each learning stream gets its own directory under `tracks/<topic-folder>/`:
+`learner-profile.md` lives under the agent's global config dir, shared across every project:
 
 ```text
 ${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
-├── learner-profile.md
+└── learner-profile.md
+```
+
+- `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
+
+### Per-project track state
+
+Each learning stream gets its own directory under `.pi-tutor/tracks/<topic-folder>/`, inside the project repo the track is about — resolved as the nearest ancestor directory containing `.git`, falling back to the current working directory if none is found:
+
+```text
+<project-root>/.pi-tutor/
 └── tracks/
     └── <topic-folder>/
         ├── track.md
@@ -119,6 +121,18 @@ File roles:
 - `progress.md` — journey status (roadmap completion), current focus, completed work, reflections, blockers, next step
 
 This package is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
+
+Tracks live in-repo so they're git-diffable and travel with the project (clone, branch, PR review). If you'd rather not commit tutoring state, add `.pi-tutor/` to the project's own `.gitignore` — pi-tutor does not do this for you.
+
+### Migrating tracks created before this layout
+
+Older versions of pi-tutor stored tracks globally, under `${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/tracks/<topic-folder>/`. That location still exists on disk if you had tracks from before, but pi-tutor no longer reads or writes it. To keep an existing track, copy its folder into the project it belongs to:
+
+```bash
+cp -r "${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/tracks/<topic-folder>" "/path/to/project/.pi-tutor/tracks/<topic-folder>"
+```
+
+`learner-profile.md` is unaffected — it stays in the same global location as before.
 
 ## Local development install
 
