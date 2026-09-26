@@ -1,5 +1,11 @@
 # pi-tutor
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/banner-light.svg">
+  <img alt="pi-tutor" src="assets/banner-dark.svg">
+</picture>
+
 ```bash
 pi install npm:pi-tutor
 ```
