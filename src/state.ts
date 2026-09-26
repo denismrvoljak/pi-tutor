@@ -3,13 +3,15 @@ import { Type, type Static } from "@sinclair/typebox";
 /**
  * Durable tutor state contract for pi-tutor.
  *
- * Learner identity stays global, while each learning track gets its own
- * self-contained markdown directory under the tutor data root.
+ * Learner identity stays global (one profile across every project), while
+ * each learning track is project-scoped: it lives under the repo the
+ * learner is actually working in, alongside the code the track is about.
  */
 export const GLOBAL_STATE_ROOT = "${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor";
-export const TRACKS_ROOT = `${GLOBAL_STATE_ROOT}/tracks`;
-
 export const LEARNER_PROFILE_PATH = `${GLOBAL_STATE_ROOT}/learner-profile.md`;
+
+export const PROJECT_STATE_ROOT = "<project-root>/.pi-tutor";
+export const TRACKS_ROOT = `${PROJECT_STATE_ROOT}/tracks`;
 export const TRACK_BRIEF_PATH = `${TRACKS_ROOT}/<slug>/track.md`;
 export const ROADMAP_PATH = `${TRACKS_ROOT}/<slug>/roadmap.md`;
 export const PROGRESS_PATH = `${TRACKS_ROOT}/<slug>/progress.md`;
