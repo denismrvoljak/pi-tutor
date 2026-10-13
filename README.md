@@ -58,8 +58,10 @@ Use this when you want a clean temporary environment or project-scoped setup:
 
 ```bash
 pi install -l /absolute/path/to/pi-tutor
-pi list
+pi list --approve
 ```
+
+Pi 1.x ignores project-local packages until you trust the project. `--approve` trusts it for one run.
 
 ### One-off test
 

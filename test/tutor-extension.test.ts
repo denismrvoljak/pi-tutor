@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import piTutorExtension, {
   TUTOR_MODE_CUSTOM_TYPE,
   buildTutorModeSystemPrompt,
@@ -186,8 +186,6 @@ test("extension registers tutor command and tutor-mode hooks", () => {
   mockPi.getSingleHandler("input");
   mockPi.getSingleHandler("before_agent_start");
   mockPi.getSingleHandler("session_start");
-  mockPi.getSingleHandler("session_switch");
-  mockPi.getSingleHandler("session_fork");
   mockPi.getSingleHandler("session_tree");
 });
 

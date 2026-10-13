@@ -25,9 +25,9 @@ test("package.json declares the required pi peer dependencies and publish metada
   const pkg = readJson("package.json");
 
   for (const dependencyName of [
-    "@mariozechner/pi-ai",
-    "@mariozechner/pi-coding-agent",
-    "@mariozechner/pi-tui",
+    "@earendil-works/pi-ai",
+    "@earendil-works/pi-coding-agent",
+    "@earendil-works/pi-tui",
     "@sinclair/typebox",
   ]) {
     assert.equal(typeof pkg.peerDependencies?.[dependencyName], "string", `${dependencyName} should be a peer dependency`);
@@ -134,5 +134,5 @@ test("README workflow examples and pack smoke stay in sync with packaged resourc
   assert.match(script, /SettingsManager/);
   assert.match(script, /tar", \["-xzf"/);
   assert.match(script, /pi", \["install", "-l", unpackedPackagePath\]/);
-  assert.match(script, /pi", \["list"\]/);
+  assert.match(script, /pi", \["list"/);
 });

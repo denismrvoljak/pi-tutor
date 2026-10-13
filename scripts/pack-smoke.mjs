@@ -4,7 +4,7 @@ import { readdirSync, rmSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { DefaultResourceLoader, SettingsManager } from "@mariozechner/pi-coding-agent";
+import { DefaultResourceLoader, SettingsManager } from "@earendil-works/pi-coding-agent";
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const expectedTarEntries = [
@@ -70,7 +70,8 @@ try {
   };
 
   run("pi", ["install", "-l", unpackedPackagePath], { cwd: projectDir, env });
-  const listResult = run("pi", ["list"], { cwd: projectDir, env });
+  // Pi 1.x ignores project-local packages until the project is trusted.
+  const listResult = run("pi", ["list", "--approve"], { cwd: projectDir, env });
   assert.match(listResult.stdout, /pi-tutor/i);
   assert.match(listResult.stdout, /package/);
 

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import piTutorExtension from "../extensions/pi-tutor/index.ts";
 import { renderLearnerProfileMarkdown, saveLearnerProfileMarkdown } from "../src/learner-profile.ts";
 import {
@@ -365,7 +365,7 @@ test("extension injects matched track context for new sessions that name a saved
     await tutorCommand?.handler("on", ctx);
 
     const result = await beforeAgentStart(
-      { systemPrompt: "Base prompt", prompt: "I want to keep learning SQL joins today." },
+      { systemPrompt: "Base prompt", messageType: "user", prompt: "I want to keep learning SQL joins today." },
       ctx,
     );
     const prompt = String((result as { systemPrompt?: string } | undefined)?.systemPrompt);
@@ -421,7 +421,7 @@ test("extension injects track-creation instructions when no saved track matches 
     await tutorCommand?.handler("on", ctx);
 
     const result = await beforeAgentStart(
-      { systemPrompt: "Base prompt", prompt: "I want to keep learning Redis caching patterns." },
+      { systemPrompt: "Base prompt", messageType: "user", prompt: "I want to keep learning Redis caching patterns." },
       ctx,
     );
     const prompt = String((result as { systemPrompt?: string } | undefined)?.systemPrompt);

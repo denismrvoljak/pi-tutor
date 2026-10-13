@@ -1,4 +1,4 @@
-import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext, SessionEntry } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext, SessionEntry } from "@earendil-works/pi-coding-agent";
 import {
   buildConversationalOnboardingPrompt,
   buildLearnerProfilePrompt,
@@ -243,7 +243,8 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
 
     systemPrompt += `\n\n${buildLearnerProfilePrompt(learnerProfileMarkdown)}`;
 
-    const userPrompt = typeof event.prompt === "string" ? event.prompt : "";
+    // Runs started by a custom message carry no user prompt.
+    const userPrompt = event.messageType === "user" ? event.prompt : "";
     const matchedTrack = await matchTrackFromPrompt(userPrompt, projectRoot);
     if (matchedTrack) {
       systemPrompt += `\n\n${buildTrackContextPrompt(matchedTrack)}`;
@@ -256,15 +257,8 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
     };
   });
 
+  // Also fires on /new, /resume and /fork (Pi 1.x folded session_switch and session_fork into it).
   pi.on("session_start", async (_event, ctx) => {
-    await restoreTutorState(ctx);
-  });
-
-  pi.on("session_switch", async (_event, ctx) => {
-    await restoreTutorState(ctx);
-  });
-
-  pi.on("session_fork", async (_event, ctx) => {
     await restoreTutorState(ctx);
   });
 
