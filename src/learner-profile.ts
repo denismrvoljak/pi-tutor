@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { getAgentDir } from "@mariozechner/pi-coding-agent";
+import { homedir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
 export interface LearnerProfileMarkdownInput {
   learnerId?: string;
@@ -66,11 +67,16 @@ function renderListSection(title: string, items: string[], emptyLabel: string): 
   return lines;
 }
 
-export function resolveTutorDataDir(agentDir = getAgentDir()): string {
-  return join(agentDir, "pi-tutor");
+// PI_TUTOR_DIR lets hosts with their own agent dir (for example Pax) share one
+// learner profile with pi. An explicit agentDir argument still wins.
+export function resolveTutorDataDir(agentDir?: string): string {
+  if (agentDir) return join(agentDir, "pi-tutor");
+  const override = process.env.PI_TUTOR_DIR?.trim();
+  if (override) return resolve(override.replace(/^~(?=$|\/)/, homedir()));
+  return join(getAgentDir(), "pi-tutor");
 }
 
-export function resolveLearnerProfilePath(agentDir = getAgentDir()): string {
+export function resolveLearnerProfilePath(agentDir?: string): string {
   return join(resolveTutorDataDir(agentDir), LEARNER_PROFILE_FILENAME);
 }
 
@@ -113,7 +119,7 @@ export function renderLearnerProfileMarkdown(input: LearnerProfileMarkdownInput)
   return lines.join("\n");
 }
 
-export async function loadLearnerProfileMarkdown(agentDir = getAgentDir()): Promise<string | undefined> {
+export async function loadLearnerProfileMarkdown(agentDir?: string): Promise<string | undefined> {
   try {
     return await readFile(resolveLearnerProfilePath(agentDir), "utf8");
   } catch (error) {
@@ -124,7 +130,7 @@ export async function loadLearnerProfileMarkdown(agentDir = getAgentDir()): Prom
   }
 }
 
-export async function saveLearnerProfileMarkdown(markdown: string, agentDir = getAgentDir()): Promise<string> {
+export async function saveLearnerProfileMarkdown(markdown: string, agentDir?: string): Promise<string> {
   const profilePath = resolveLearnerProfilePath(agentDir);
   await mkdir(dirname(profilePath), { recursive: true });
   const normalized = markdown.endsWith("\n") ? markdown : `${markdown}\n`;

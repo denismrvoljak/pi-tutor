@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
@@ -102,4 +102,18 @@ test("learner profile template gives the agent a markdown scaffold for first-run
   assert.match(template, /## Snapshot/);
   assert.match(template, /## Learning goals/);
   assert.match(template, /## Notes/);
+});
+
+test("PI_TUTOR_DIR overrides the host agent dir; an explicit agentDir still wins", () => {
+  const previous = process.env.PI_TUTOR_DIR;
+  try {
+    process.env.PI_TUTOR_DIR = "/tmp/shared-tutor";
+    assert.equal(resolveLearnerProfilePath(), "/tmp/shared-tutor/learner-profile.md");
+    assert.equal(resolveLearnerProfilePath("/tmp/pi-agent"), "/tmp/pi-agent/pi-tutor/learner-profile.md");
+    process.env.PI_TUTOR_DIR = "~/tutor-data";
+    assert.equal(resolveLearnerProfilePath(), join(homedir(), "tutor-data", "learner-profile.md"));
+  } finally {
+    if (previous === undefined) delete process.env.PI_TUTOR_DIR;
+    else process.env.PI_TUTOR_DIR = previous;
+  }
 });
