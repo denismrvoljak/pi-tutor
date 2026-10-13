@@ -99,9 +99,11 @@ Tutor data is split across two roots: one global (learner identity), one per-pro
 `learner-profile.md` lives under the agent's global config dir, shared across every project:
 
 ```text
-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
+${PI_TUTOR_DIR:-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor}/
 └── learner-profile.md
 ```
+
+Set `PI_TUTOR_DIR` to keep the profile in one place across hosts that use different agent dirs, for example to share pi's profile with a pi-based harness. A leading `~` is expanded.
 
 - `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
 
