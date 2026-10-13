@@ -7,7 +7,7 @@ import { Type, type Static } from "@sinclair/typebox";
  * each learning track is project-scoped: it lives under the repo the
  * learner is actually working in, alongside the code the track is about.
  */
-export const GLOBAL_STATE_ROOT = "${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor";
+export const GLOBAL_STATE_ROOT = "${PI_TUTOR_DIR:-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor}";
 export const LEARNER_PROFILE_PATH = `${GLOBAL_STATE_ROOT}/learner-profile.md`;
 
 export const PROJECT_STATE_ROOT = "<project-root>/.pi-tutor";
