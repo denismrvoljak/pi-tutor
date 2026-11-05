@@ -14,14 +14,11 @@ import {
   resolveTracksRoot,
   shouldConsiderTrack,
 } from "../../src/tracks.ts";
-import { OWL_LABELS, renderOwl } from "../../src/owl.ts";
 
 export const TUTOR_MODE_CUSTOM_TYPE = "pi-tutor-mode";
 export const TUTOR_ONBOARDING_MESSAGE_CUSTOM_TYPE = "pi-tutor-onboarding";
 export const TUTOR_WORKFLOW_DISABLED_MESSAGE_CUSTOM_TYPE = "pi-tutor-workflow-disabled";
 export const TUTOR_STATUS_KEY = "oh-my-tutor";
-export const TUTOR_WIDGET_KEY = "oh-my-tutor-owl";
-const OWL_FRAME_MS = 600;
 
 const TUTOR_PROMPT_COMMANDS = new Set(["start_tutoring", "hint", "reflect", "next_step"]);
 const TUTOR_SKILL_COMMANDS = new Set(["tutor-implementation", "tutor-learn-topic"]);
@@ -93,8 +90,17 @@ Tutor behavior rules:
 - Briefly reinforce progress and point to what to try next.`;
 }
 
-export function getTutorStatusText(enabled: boolean): string | undefined {
-  return enabled ? "tutor mode enabled" : undefined;
+interface StatusTheme {
+  fg(color: string, text: string): string;
+}
+
+const PLAIN_THEME: StatusTheme = { fg: (_color, text) => text };
+
+// Same shape as ponytail's footer item: the dot lights up while the agent is working.
+export function getTutorStatusText(enabled: boolean, active = false, theme: StatusTheme = PLAIN_THEME): string | undefined {
+  if (!enabled) return undefined;
+  const indicator = active ? theme.fg("accent", "●") : theme.fg("dim", "○");
+  return `${indicator} 🦉 ${theme.fg("muted", "tutor: ")}${theme.fg("text", "ON")}`;
 }
 
 function parseTutorWorkflowInvocation(input: string): string | undefined {
@@ -136,29 +142,17 @@ function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: stri
 export default function ohMyTutorExtension(pi: ExtensionAPI): void {
   let tutorModeState = DEFAULT_TUTOR_MODE_STATE;
   let learnerProfileMarkdown: string | undefined;
-  let owlTimer: ReturnType<typeof setInterval> | undefined;
+  let agentActive = false;
 
-  const stopOwl = () => {
-    clearInterval(owlTimer);
-    owlTimer = undefined;
-  };
-
-  // Shows the status text and, while tutor mode is on, the animated owl widget.
   const syncTutorUi = (ctx: ExtensionContext, state: TutorModeState) => {
-    stopOwl();
     if (!ctx.hasUI) return;
 
-    ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled));
-    if (!state.enabled) {
-      ctx.ui.setWidget(TUTOR_WIDGET_KEY, undefined);
-      return;
-    }
-
-    let frame = 0;
-    const draw = () => ctx.ui.setWidget(TUTOR_WIDGET_KEY, renderOwl(frame++, OWL_LABELS));
-    draw();
-    owlTimer = setInterval(draw, OWL_FRAME_MS);
-    owlTimer.unref?.();
+    // Like ponytail: some hosts throw when the theme is read before it is ready.
+    let theme: StatusTheme = PLAIN_THEME;
+    try {
+      theme = ctx.ui.theme;
+    } catch {}
+    ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled, agentActive, theme));
   };
 
   const restoreTutorState = async (ctx: ExtensionContext) => {
@@ -287,7 +281,13 @@ export default function ohMyTutorExtension(pi: ExtensionAPI): void {
     await restoreTutorState(ctx);
   });
 
-  pi.on("session_shutdown", async () => {
-    stopOwl();
+  pi.on("agent_start", async (_event, ctx) => {
+    agentActive = true;
+    syncTutorUi(ctx, tutorModeState);
+  });
+
+  pi.on("agent_end", async (_event, ctx) => {
+    agentActive = false;
+    syncTutorUi(ctx, tutorModeState);
   });
 }

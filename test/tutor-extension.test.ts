@@ -6,7 +6,6 @@ import test from "node:test";
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import ohMyTutorExtension, {
   TUTOR_MODE_CUSTOM_TYPE,
-  TUTOR_WIDGET_KEY,
   buildTutorModeSystemPrompt,
   parseTutorCommand,
   reconstructTutorModeState,
@@ -265,9 +264,8 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
     assert.match(String((mockPi.appendedEntries[0]?.data as { updatedAt: string }).updatedAt), /^\d{4}-\d{2}-\d{2}T/);
 
     assert.match(notifications.at(-1)?.message ?? "", /enabled/i);
-    assert.equal(statuses.at(-1)?.value, "tutor mode enabled");
-    assert.equal(widgets.at(-1)?.key, TUTOR_WIDGET_KEY);
-    assert.equal(widgets.at(-1)?.value?.length, 3);
+    assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
+    assert.equal(widgets.length, 0);
 
     assert.equal(inputCalls.length, 0);
     assert.equal(confirmCalls.length, 0);
@@ -405,8 +403,12 @@ test("session_start restores persisted state and /tutor off clears the widget", 
   });
 
   await sessionStart({ type: "session_start" }, ctx);
-  assert.equal(statuses.at(-1)?.value, "tutor mode enabled");
-  assert.match(widgets.at(-1)?.value?.join("\n") ?? "", /tutor mode/);
+  assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
+
+  await mockPi.getSingleHandler("agent_start")({ type: "agent_start" }, ctx);
+  assert.equal(statuses.at(-1)?.value, "● 🦉 tutor: ON");
+  await mockPi.getSingleHandler("agent_end")({ type: "agent_end" }, ctx);
+  assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
 
   const injected = await beforeAgentStart({ systemPrompt: "Base prompt" }, ctx);
   assert.match(String((injected as { systemPrompt?: string } | undefined)?.systemPrompt), /hints before full solutions/i);

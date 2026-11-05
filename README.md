@@ -90,13 +90,13 @@ For local development, run `claude --plugin-dir /absolute/path/to/oh-my-tutor`.
 
 In Claude Code, the commands carry the plugin prefix: `/tutor:tutor on`, `/tutor:hint`, `/tutor:tutor-implementation`, and so on. A `UserPromptSubmit` hook (`claude/user-prompt-submit.mjs`) replaces the Pi extension. Tutor mode applies per session. The plugin reads the same learner profile and `.pi-tutor/tracks/` as Pi, so both harnesses share one learning state. The hook needs Node 22.18 or later.
 
-While tutor mode is on, Pi shows an animated pixel owl above the editor. Claude Code can show the same owl in its status line, but a plugin cannot set the status line for you. To turn it on:
+While tutor mode is on, Pi shows `○ 🦉 tutor: ON` in its footer. The dot lights up while the agent is working. Claude Code can show `🦉 tutor: ON` in its status line, but a plugin cannot set the status line for you. To turn it on:
 
 1. Run `/tutor:tutor on` once. This writes the launcher `~/.claude/oh-my-tutor/statusline.mjs`.
 2. Add this to `~/.claude/settings.json`:
 
    ```json
-   "statusLine": { "type": "command", "command": "node ~/.claude/oh-my-tutor/statusline.mjs", "refreshInterval": 1 }
+   "statusLine": { "type": "command", "command": "node ~/.claude/oh-my-tutor/statusline.mjs" }
    ```
 
 The status line prints nothing while tutor mode is off. If you already have a status line, this setting replaces it. To keep yours, call the launcher from your own status line script and print both outputs.

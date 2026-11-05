@@ -35,15 +35,13 @@ test("claude hook toggles tutor mode per session and gates workflows", () => {
 
   assert.equal(run(env, "plain question", "other-session"), undefined);
 
-  // The launcher the hook wrote draws the owl only for the session with tutor mode on.
+  // The launcher the hook wrote shows the indicator only for the session with tutor mode on.
   const statusline = (sessionId) =>
     execFileSync("node", [join(env.home, ".claude", "oh-my-tutor", "statusline.mjs")], {
       input: JSON.stringify({ session_id: sessionId }),
       env: { ...process.env, HOME: env.home },
     }).toString();
-  const owl = statusline("s1").trimEnd().split("\n");
-  assert.equal(owl.length, 3);
-  assert.match(owl[1], /tutor mode/);
+  assert.match(statusline("s1"), /🦉 .*tutor:.* ON/);
   assert.equal(statusline("other-session"), "");
 
   assert.match(run(env, "/tutor off").hookSpecificOutput.additionalContext, /Tutor mode is OFF/);
