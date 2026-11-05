@@ -1,0 +1,12 @@
+{
+  "name": "pi-tutor",
+  "description": "Stateful coding tutor: hint-first, track-aware teaching that shares its learner profile and tracks with pi-tutor for Pi.",
+  "author": { "name": "Denis Mrvoljak" },
+  "homepage": "https://github.com/denismrvoljak/pi-tutor",
+  "repository": "https://github.com/denismrvoljak/pi-tutor",
+  "license": "MIT",
+  "keywords": ["tutor", "learning"],
+  "commands": ["./prompts", "./claude/commands"],
+  "skills": "./skills",
+  "hooks": "./claude/hooks.json"
+}

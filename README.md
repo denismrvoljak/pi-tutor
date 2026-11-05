@@ -75,6 +75,19 @@ Then open pi and enable tutor mode:
 /tutor on
 ```
 
+### Claude Code
+
+This repository is also a Claude Code plugin and marketplace:
+
+```text
+/plugin marketplace add denismrvoljak/pi-tutor
+/plugin install pi-tutor@pi-tutor
+```
+
+For local development, run `claude --plugin-dir /absolute/path/to/pi-tutor`.
+
+In Claude Code, the commands carry the plugin prefix: `/pi-tutor:tutor on`, `/pi-tutor:hint`, `/pi-tutor:tutor-implementation`, and so on. A `UserPromptSubmit` hook (`claude/user-prompt-submit.mjs`) replaces the Pi extension. Tutor mode applies per session. The plugin reads the same learner profile and `.pi-tutor/tracks/` as Pi, so both harnesses share one learning state. The hook needs Node 22.18 or later.
+
 ## What it includes
 
 - `/tutor on`
