@@ -1,7 +1,7 @@
 ---
 description: Start or resume a track-aware tutoring session with pi-tutor.
 ---
-Start or resume tutoring for this task/topic: $@
+Start or resume tutoring for this task/topic: $ARGUMENTS
 
 Use any injected pi-tutor context first.
 If a track is matched, continue it instead of starting over and consult `track.md`, `project.md`, `roadmap.md`, and `progress.md` before deciding what to do.

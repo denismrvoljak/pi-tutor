@@ -1,7 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { getAgentDir } from "@earendil-works/pi-coding-agent";
 
 export interface LearnerProfileMarkdownInput {
   learnerId?: string;
@@ -73,7 +72,9 @@ export function resolveTutorDataDir(agentDir?: string): string {
   if (agentDir) return join(agentDir, "pi-tutor");
   const override = process.env.PI_TUTOR_DIR?.trim();
   if (override) return resolve(override.replace(/^~(?=$|\/)/, homedir()));
-  return join(getAgentDir(), "pi-tutor");
+  // Same default as Pi's getAgentDir(), inlined so the Claude Code hook loads without Pi installed.
+  const envDir = process.env.PI_CODING_AGENT_DIR?.trim();
+  return join(envDir ? resolve(envDir.replace(/^~(?=$|\/)/, homedir())) : join(homedir(), ".pi", "agent"), "pi-tutor");
 }
 
 export function resolveLearnerProfilePath(agentDir?: string): string {

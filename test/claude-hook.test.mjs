@@ -1,0 +1,40 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+const hook = new URL("../claude/user-prompt-submit.mjs", import.meta.url).pathname;
+
+function run(env, prompt, sessionId = "s1") {
+  const out = execFileSync("node", [hook], {
+    input: JSON.stringify({ prompt, session_id: sessionId, cwd: env.cwd }),
+    env: { ...process.env, CLAUDE_PLUGIN_DATA: env.data, PI_TUTOR_DIR: env.tutor },
+  }).toString();
+  return out ? JSON.parse(out) : undefined;
+}
+
+test("claude hook toggles tutor mode per session and gates workflows", () => {
+  const root = mkdtempSync(join(tmpdir(), "pi-tutor-claude-"));
+  const env = { data: join(root, "data"), tutor: join(root, "tutor"), cwd: root };
+
+  assert.equal(run(env, "plain question"), undefined);
+  assert.equal(run(env, "/pi-tutor:hint loops").decision, "block");
+  assert.equal(run(env, "/pi-tutor:tutor bogus").decision, "block");
+
+  const on = run(env, "/pi-tutor:tutor on").hookSpecificOutput.additionalContext;
+  assert.match(on, /Tutor mode is ON/);
+  assert.match(on, /Start conversational onboarding/);
+
+  mkdirSync(env.tutor, { recursive: true });
+  writeFileSync(join(env.tutor, "learner-profile.md"), "# Learner Profile\n- Current level: beginner\n");
+  const turn = run(env, "/pi-tutor:hint loops").hookSpecificOutput.additionalContext;
+  assert.match(turn, /Tutor mode is enabled/);
+  assert.match(turn, /Current level: beginner/);
+
+  assert.equal(run(env, "plain question", "other-session"), undefined);
+
+  assert.match(run(env, "/tutor off").hookSpecificOutput.additionalContext, /Tutor mode is OFF/);
+  assert.equal(run(env, "plain question"), undefined);
+});

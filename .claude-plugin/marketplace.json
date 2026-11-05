@@ -1,0 +1,11 @@
+{
+  "name": "pi-tutor",
+  "owner": { "name": "Denis Mrvoljak" },
+  "plugins": [
+    {
+      "name": "pi-tutor",
+      "source": "./",
+      "description": "Stateful coding tutor: hint-first, track-aware teaching."
+    }
+  ]
+}

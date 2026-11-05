@@ -1,7 +1,7 @@
 ---
 description: Ask pi-tutor for the next track-aware hint instead of a full solution.
 ---
-Give me the next helpful hint for this task/topic: $@
+Give me the next helpful hint for this task/topic: $ARGUMENTS
 
 If a matching track is available, ground the hint in `track.md`, `project.md`, `roadmap.md`, and `progress.md`.
 

@@ -1,0 +1,16 @@
+{
+  "description": "pi-tutor: tutor mode, learner profile and track context",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/claude/user-prompt-submit.mjs"]
+          }
+        ]
+      }
+    ]
+  }
+}

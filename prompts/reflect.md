@@ -1,7 +1,7 @@
 ---
 description: Reflect on a learning attempt and update track progress.
 ---
-Help me reflect on this learning attempt or progress update: $@
+Help me reflect on this learning attempt or progress update: $ARGUMENTS
 
 If a matching track is available, use `track.md`, `project.md`, `roadmap.md`, and `progress.md`.
 Before you answer, update markdown state to:
