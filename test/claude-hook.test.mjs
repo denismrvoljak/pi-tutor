@@ -37,7 +37,7 @@ test("claude hook toggles tutor mode per session and gates workflows", () => {
 
   // The launcher the hook wrote draws the owl only for the session with tutor mode on.
   const statusline = (sessionId) =>
-    execFileSync("node", [join(env.home, ".claude", "agent-tutor", "statusline.mjs")], {
+    execFileSync("node", [join(env.home, ".claude", "oh-my-tutor", "statusline.mjs")], {
       input: JSON.stringify({ session_id: sessionId }),
       env: { ...process.env, HOME: env.home },
     }).toString();

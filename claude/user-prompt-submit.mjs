@@ -1,9 +1,9 @@
-// Claude Code UserPromptSubmit hook: the Claude counterpart of extensions/agent-tutor.
+// Claude Code UserPromptSubmit hook: the Claude counterpart of extensions/oh-my-tutor.
 // It reuses the Pi extension's prompt builders. Node strips the TypeScript types on import (Node >= 22.18).
 import { mkdir, rm, stat, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { STATUSLINE_LAUNCHER, sessionFlagPath } from "./paths.mjs";
-import { buildTutorModeSystemPrompt, parseTutorCommand } from "../extensions/agent-tutor/index.ts";
+import { buildTutorModeSystemPrompt, parseTutorCommand } from "../extensions/oh-my-tutor/index.ts";
 import {
   buildConversationalOnboardingPrompt,
   buildLearnerProfilePrompt,

@@ -1,5 +1,5 @@
 {
-  "description": "agent-tutor: tutor mode, learner profile and track context",
+  "description": "oh-my-tutor: tutor mode, learner profile and track context",
   "hooks": {
     "UserPromptSubmit": [
       {

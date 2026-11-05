@@ -19,8 +19,8 @@ import { OWL_LABELS, renderOwl } from "../../src/owl.ts";
 export const TUTOR_MODE_CUSTOM_TYPE = "pi-tutor-mode";
 export const TUTOR_ONBOARDING_MESSAGE_CUSTOM_TYPE = "pi-tutor-onboarding";
 export const TUTOR_WORKFLOW_DISABLED_MESSAGE_CUSTOM_TYPE = "pi-tutor-workflow-disabled";
-export const TUTOR_STATUS_KEY = "agent-tutor";
-export const TUTOR_WIDGET_KEY = "agent-tutor-owl";
+export const TUTOR_STATUS_KEY = "oh-my-tutor";
+export const TUTOR_WIDGET_KEY = "oh-my-tutor-owl";
 const OWL_FRAME_MS = 600;
 
 const TUTOR_PROMPT_COMMANDS = new Set(["start_tutoring", "hint", "reflect", "next_step"]);
@@ -133,7 +133,7 @@ function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: stri
   return `${base} Learner profile markdown is loaded and will guide tutoring behavior.`;
 }
 
-export default function agentTutorExtension(pi: ExtensionAPI): void {
+export default function ohMyTutorExtension(pi: ExtensionAPI): void {
   let tutorModeState = DEFAULT_TUTOR_MODE_STATE;
   let learnerProfileMarkdown: string | undefined;
   let owlTimer: ReturnType<typeof setInterval> | undefined;

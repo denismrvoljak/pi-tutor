@@ -4,13 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import agentTutorExtension, {
+import ohMyTutorExtension, {
   TUTOR_MODE_CUSTOM_TYPE,
   TUTOR_WIDGET_KEY,
   buildTutorModeSystemPrompt,
   parseTutorCommand,
   reconstructTutorModeState,
-} from "../extensions/agent-tutor/index.ts";
+} from "../extensions/oh-my-tutor/index.ts";
 import {
   renderLearnerProfileMarkdown,
   resolveLearnerProfilePath,
@@ -181,7 +181,7 @@ test("buildTutorModeSystemPrompt appends narrow tutor-mode guidance", () => {
 test("extension registers tutor command and tutor-mode hooks", () => {
   const mockPi = createMockPi();
 
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   assert.equal(mockPi.commands.has("tutor"), true);
   mockPi.getSingleHandler("input");
@@ -192,7 +192,7 @@ test("extension registers tutor command and tutor-mode hooks", () => {
 
 test("input guard blocks tutor prompt templates while tutor mode is off", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const { ctx, notifications } = createMockContext();
@@ -209,7 +209,7 @@ test("input guard blocks tutor prompt templates while tutor mode is off", async 
 
 test("input guard blocks tutor skill commands while tutor mode is off", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const { ctx, notifications } = createMockContext();
@@ -224,7 +224,7 @@ test("input guard blocks tutor skill commands while tutor mode is off", async ()
 
 test("input guard allows tutor workflows when tutor mode is on", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const sessionStart = mockPi.getSingleHandler("session_start");
@@ -247,7 +247,7 @@ test("input guard allows tutor workflows when tutor mode is on", async () => {
 
 test("/tutor on persists enabled state, updates UI, and queues conversational onboarding when the profile markdown is missing", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
@@ -290,7 +290,7 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
 
 test("existing learner profile markdown is reused without repeating onboarding and changes tutor guidance", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const sessionStart = mockPi.getSingleHandler("session_start");
@@ -349,7 +349,7 @@ test("existing learner profile markdown is reused without repeating onboarding a
 
 test("/tutor on treats the presence of learner-profile.md as onboarding completion", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
@@ -389,7 +389,7 @@ test("/tutor on treats the presence of learner-profile.md as onboarding completi
 
 test("session_start restores persisted state and /tutor off clears the widget", async () => {
   const mockPi = createMockPi();
-  agentTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const sessionStart = mockPi.getSingleHandler("session_start");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");

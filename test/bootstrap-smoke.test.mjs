@@ -9,7 +9,7 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const requiredPaths = [
   ".gitignore",
   "README.md",
-  "extensions/agent-tutor/index.ts",
+  "extensions/oh-my-tutor/index.ts",
   "package.json",
   "prompts",
   "skills",
@@ -27,7 +27,7 @@ for (const relativePath of requiredPaths) {
 test("package.json exposes phase-1 bootstrap scripts", () => {
   const pkg = JSON.parse(readFileSync(resolve(packageRoot, "package.json"), "utf8"));
 
-  assert.equal(pkg.name, "agent-tutor");
+  assert.equal(pkg.name, "oh-my-tutor");
   assert.equal(pkg.type, "module");
   assert.equal(pkg.private, undefined);
   assert.equal(pkg.author, "Denis Mrvoljak");
@@ -55,7 +55,7 @@ test("tsconfig is self-contained and targets modern node", () => {
 });
 
 test("extension entrypoint exports a default function", () => {
-  const extensionSource = readFileSync(resolve(packageRoot, "extensions/agent-tutor/index.ts"), "utf8");
+  const extensionSource = readFileSync(resolve(packageRoot, "extensions/oh-my-tutor/index.ts"), "utf8");
 
   assert.match(extensionSource, /export default function/);
 });

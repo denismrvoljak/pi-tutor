@@ -1,11 +1,11 @@
 {
   "name": "tutor",
-  "description": "Stateful coding tutor: hint-first, track-aware teaching. Shares its learner profile and tracks with agent-tutor for Pi.",
+  "description": "Stateful coding tutor: hint-first, track-aware teaching. Shares its learner profile and tracks with oh-my-tutor for Pi.",
   "author": {
     "name": "Denis Mrvoljak"
   },
-  "homepage": "https://github.com/denismrvoljak/agent-tutor",
-  "repository": "https://github.com/denismrvoljak/agent-tutor",
+  "homepage": "https://github.com/denismrvoljak/oh-my-tutor",
+  "repository": "https://github.com/denismrvoljak/oh-my-tutor",
   "license": "MIT",
   "keywords": [
     "tutor",
