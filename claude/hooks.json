@@ -1,5 +1,5 @@
 {
-  "description": "pi-tutor: tutor mode, learner profile and track context",
+  "description": "agent-tutor: tutor mode, learner profile and track context",
   "hooks": {
     "UserPromptSubmit": [
       {

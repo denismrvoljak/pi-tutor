@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import piTutorExtension from "../extensions/pi-tutor/index.ts";
+import agentTutorExtension from "../extensions/agent-tutor/index.ts";
 import { renderLearnerProfileMarkdown, saveLearnerProfileMarkdown } from "../src/learner-profile.ts";
 import {
   buildTrackContextPrompt,
@@ -298,7 +298,7 @@ test("buildTrackCreationPrompt keeps new tracks markdown-first and topic-named",
 
 test("extension injects matched track context for new sessions that name a saved topic", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  agentTutorExtension(mockPi.api);
 
   const sessionStart = mockPi.getSingleHandler("session_start");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
@@ -386,7 +386,7 @@ test("extension injects matched track context for new sessions that name a saved
 
 test("extension injects track-creation instructions when no saved track matches the requested topic", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  agentTutorExtension(mockPi.api);
 
   const sessionStart = mockPi.getSingleHandler("session_start");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");

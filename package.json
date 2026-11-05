@@ -1,5 +1,5 @@
 {
-  "name": "pi-tutor",
+  "name": "agent-tutor",
   "version": "0.1.0",
   "description": "A stateful tutor package for pi that adds hint-first, track-aware teaching workflows.",
   "author": "Denis Mrvoljak",
@@ -50,11 +50,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/denismrvoljak/pi-tutor.git"
+    "url": "git+https://github.com/denismrvoljak/agent-tutor.git"
   },
-  "homepage": "https://github.com/denismrvoljak/pi-tutor",
+  "homepage": "https://github.com/denismrvoljak/agent-tutor",
   "bugs": {
-    "url": "https://github.com/denismrvoljak/pi-tutor/issues"
+    "url": "https://github.com/denismrvoljak/agent-tutor/issues"
   },
   "devDependencies": {
     "@earendil-works/pi-ai": "1.2.0",

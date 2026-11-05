@@ -1,7 +1,7 @@
 import { Type, type Static } from "@sinclair/typebox";
 
 /**
- * Durable tutor state contract for pi-tutor.
+ * Durable tutor state contract for agent-tutor.
  *
  * Learner identity stays global (one profile across every project), while
  * each learning track is project-scoped: it lives under the repo the

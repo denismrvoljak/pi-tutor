@@ -1,6 +1,6 @@
 ---
 name: tutor-implementation
-description: Guide implementation or debugging work with attempt-first, hint-ladder tutoring grounded in the matched pi-tutor track files. Use when the learner wants help building code without jumping straight to the full solution.
+description: Guide implementation or debugging work with attempt-first, hint-ladder tutoring grounded in the matched agent-tutor track files. Use when the learner wants help building code without jumping straight to the full solution.
 disable-model-invocation: true
 ---
 

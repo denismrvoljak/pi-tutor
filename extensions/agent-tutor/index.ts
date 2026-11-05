@@ -14,11 +14,14 @@ import {
   resolveTracksRoot,
   shouldConsiderTrack,
 } from "../../src/tracks.ts";
+import { OWL_LABELS, renderOwl } from "../../src/owl.ts";
 
 export const TUTOR_MODE_CUSTOM_TYPE = "pi-tutor-mode";
 export const TUTOR_ONBOARDING_MESSAGE_CUSTOM_TYPE = "pi-tutor-onboarding";
 export const TUTOR_WORKFLOW_DISABLED_MESSAGE_CUSTOM_TYPE = "pi-tutor-workflow-disabled";
-export const TUTOR_STATUS_KEY = "pi-tutor";
+export const TUTOR_STATUS_KEY = "agent-tutor";
+export const TUTOR_WIDGET_KEY = "agent-tutor-owl";
+const OWL_FRAME_MS = 600;
 
 const TUTOR_PROMPT_COMMANDS = new Set(["start_tutoring", "hint", "reflect", "next_step"]);
 const TUTOR_SKILL_COMMANDS = new Set(["tutor-implementation", "tutor-learn-topic"]);
@@ -91,7 +94,7 @@ Tutor behavior rules:
 }
 
 export function getTutorStatusText(enabled: boolean): string | undefined {
-  return enabled ? "📚 tutor mode enabled" : undefined;
+  return enabled ? "tutor mode enabled" : undefined;
 }
 
 function parseTutorWorkflowInvocation(input: string): string | undefined {
@@ -117,12 +120,6 @@ function buildTutorWorkflowDisabledMessage(command: string): string {
   return `Tutor mode is off. Run /tutor on before using ${command}.`;
 }
 
-function syncTutorUi(ctx: ExtensionContext, state: TutorModeState): void {
-  if (!ctx.hasUI) return;
-
-  ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled));
-  ctx.ui.setWidget("pi-tutor-mode", undefined);
-}
 
 function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: string): string {
   const base = state.enabled
@@ -136,9 +133,33 @@ function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: stri
   return `${base} Learner profile markdown is loaded and will guide tutoring behavior.`;
 }
 
-export default function piTutorExtension(pi: ExtensionAPI): void {
+export default function agentTutorExtension(pi: ExtensionAPI): void {
   let tutorModeState = DEFAULT_TUTOR_MODE_STATE;
   let learnerProfileMarkdown: string | undefined;
+  let owlTimer: ReturnType<typeof setInterval> | undefined;
+
+  const stopOwl = () => {
+    clearInterval(owlTimer);
+    owlTimer = undefined;
+  };
+
+  // Shows the status text and, while tutor mode is on, the animated owl widget.
+  const syncTutorUi = (ctx: ExtensionContext, state: TutorModeState) => {
+    stopOwl();
+    if (!ctx.hasUI) return;
+
+    ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled));
+    if (!state.enabled) {
+      ctx.ui.setWidget(TUTOR_WIDGET_KEY, undefined);
+      return;
+    }
+
+    let frame = 0;
+    const draw = () => ctx.ui.setWidget(TUTOR_WIDGET_KEY, renderOwl(frame++, OWL_LABELS));
+    draw();
+    owlTimer = setInterval(draw, OWL_FRAME_MS);
+    owlTimer.unref?.();
+  };
 
   const restoreTutorState = async (ctx: ExtensionContext) => {
     tutorModeState = reconstructTutorModeState(ctx.sessionManager.getBranch());
@@ -264,5 +285,9 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
 
   pi.on("session_tree", async (_event, ctx) => {
     await restoreTutorState(ctx);
+  });
+
+  pi.on("session_shutdown", async () => {
+    stopOwl();
   });
 }

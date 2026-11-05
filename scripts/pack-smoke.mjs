@@ -9,7 +9,7 @@ import { DefaultResourceLoader, SettingsManager } from "@earendil-works/pi-codin
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const expectedTarEntries = [
   "package/README.md",
-  "package/extensions/pi-tutor/index.ts",
+  "package/extensions/agent-tutor/index.ts",
   "package/skills/tutor-implementation/SKILL.md",
   "package/skills/tutor-learn-topic/SKILL.md",
   "package/prompts/start_tutoring.md",
@@ -24,10 +24,10 @@ const expectedTarEntries = [
 const expectedPromptCommands = ["start_tutoring", "hint", "reflect", "next_step"];
 const expectedSkillNames = ["tutor-implementation", "tutor-learn-topic"];
 
-const packDir = mkdtempSync(join(tmpdir(), "pi-tutor-pack-"));
-const unpackDir = mkdtempSync(join(tmpdir(), "pi-tutor-unpack-"));
-const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
-const projectDir = mkdtempSync(join(tmpdir(), "pi-tutor-project-"));
+const packDir = mkdtempSync(join(tmpdir(), "agent-tutor-pack-"));
+const unpackDir = mkdtempSync(join(tmpdir(), "agent-tutor-unpack-"));
+const agentDir = mkdtempSync(join(tmpdir(), "agent-tutor-agent-"));
+const projectDir = mkdtempSync(join(tmpdir(), "agent-tutor-project-"));
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -72,7 +72,7 @@ try {
   run("pi", ["install", "-l", unpackedPackagePath], { cwd: projectDir, env });
   // Pi 1.x ignores project-local packages until the project is trusted.
   const listResult = run("pi", ["list", "--approve"], { cwd: projectDir, env });
-  assert.match(listResult.stdout, /pi-tutor/i);
+  assert.match(listResult.stdout, /agent-tutor/i);
   assert.match(listResult.stdout, /package/);
 
   const settingsManager = SettingsManager.create(projectDir, agentDir);
@@ -96,7 +96,7 @@ try {
   }
 
   assert.equal(
-    extensionPaths.some((path) => path.includes("extensions/pi-tutor/index.ts")),
+    extensionPaths.some((path) => path.includes("extensions/agent-tutor/index.ts")),
     true,
     "Extension not discoverable after tarball install.",
   );

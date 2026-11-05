@@ -35,9 +35,9 @@ test("package.json declares the required pi peer dependencies and publish metada
 
   assert.equal(pkg.author, "Denis Mrvoljak");
   assert.equal(pkg.repository?.type, "git");
-  assert.match(pkg.repository?.url ?? "", /github\.com\/denismrvoljak\/pi-tutor\.git/);
-  assert.match(pkg.homepage ?? "", /github\.com\/denismrvoljak\/pi-tutor/);
-  assert.match(pkg.bugs?.url ?? "", /github\.com\/denismrvoljak\/pi-tutor\/issues/);
+  assert.match(pkg.repository?.url ?? "", /github\.com\/denismrvoljak\/agent-tutor\.git/);
+  assert.match(pkg.homepage ?? "", /github\.com\/denismrvoljak\/agent-tutor/);
+  assert.match(pkg.bugs?.url ?? "", /github\.com\/denismrvoljak\/agent-tutor\/issues/);
 });
 
 test("state model source defines learner, roadmap, and progress schemas", () => {
@@ -55,7 +55,7 @@ test("state model source defines learner, roadmap, and progress schemas", () => 
 
 test("package resource shells exist for extension, skills, and prompts", () => {
   for (const relativePath of [
-    "extensions/pi-tutor/index.ts",
+    "extensions/agent-tutor/index.ts",
     "skills/tutor-implementation/SKILL.md",
     "skills/tutor-learn-topic/SKILL.md",
     "prompts/start_tutoring.md",
@@ -90,11 +90,11 @@ test("workflow resources are concrete track-aware package contents instead of pl
 test("README documents GitHub install, local dev install, reload, workflow usage, state layout, and current limitations", () => {
   const readme = readText("README.md");
 
-  assert.match(readme, /pi install npm:pi-tutor/);
-  assert.match(readme, /pi install https:\/\/github\.com\/denismrvoljak\/pi-tutor/);
-  assert.match(readme, /pi install \/absolute\/path\/to\/pi-tutor/);
-  assert.match(readme, /pi install -l \/absolute\/path\/to\/pi-tutor/);
-  assert.match(readme, /pi -e npm:pi-tutor/);
+  assert.match(readme, /pi install npm:agent-tutor/);
+  assert.match(readme, /pi install https:\/\/github\.com\/denismrvoljak\/agent-tutor/);
+  assert.match(readme, /pi install \/absolute\/path\/to\/agent-tutor/);
+  assert.match(readme, /pi install -l \/absolute\/path\/to\/agent-tutor/);
+  assert.match(readme, /pi -e npm:agent-tutor/);
   assert.match(readme, /\/reload/);
   assert.match(readme, /\/tutor on/);
   assert.match(readme, /\/hint/);

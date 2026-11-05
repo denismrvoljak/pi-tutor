@@ -1,5 +1,5 @@
 ---
-description: Ask pi-tutor what to do next in a named learning track or topic.
+description: Ask agent-tutor what to do next in a named learning track or topic.
 ---
 What should I do next in this learning track/topic? $ARGUMENTS
 
