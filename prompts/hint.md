@@ -1,5 +1,5 @@
 ---
-description: Ask pi-tutor for the next track-aware hint instead of a full solution.
+description: Ask oh-my-tutor for the next track-aware hint instead of a full solution.
 ---
 Give me the next helpful hint for this task/topic: $ARGUMENTS
 

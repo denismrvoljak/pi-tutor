@@ -4,12 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import piTutorExtension, {
+import ohMyTutorExtension, {
   TUTOR_MODE_CUSTOM_TYPE,
   buildTutorModeSystemPrompt,
   parseTutorCommand,
   reconstructTutorModeState,
-} from "../extensions/pi-tutor/index.ts";
+} from "../extensions/oh-my-tutor/index.ts";
 import {
   renderLearnerProfileMarkdown,
   resolveLearnerProfilePath,
@@ -180,7 +180,7 @@ test("buildTutorModeSystemPrompt appends narrow tutor-mode guidance", () => {
 test("extension registers tutor command and tutor-mode hooks", () => {
   const mockPi = createMockPi();
 
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   assert.equal(mockPi.commands.has("tutor"), true);
   mockPi.getSingleHandler("input");
@@ -191,7 +191,7 @@ test("extension registers tutor command and tutor-mode hooks", () => {
 
 test("input guard blocks tutor prompt templates while tutor mode is off", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const { ctx, notifications } = createMockContext();
@@ -208,7 +208,7 @@ test("input guard blocks tutor prompt templates while tutor mode is off", async 
 
 test("input guard blocks tutor skill commands while tutor mode is off", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const { ctx, notifications } = createMockContext();
@@ -223,7 +223,7 @@ test("input guard blocks tutor skill commands while tutor mode is off", async ()
 
 test("input guard allows tutor workflows when tutor mode is on", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const inputHandler = mockPi.getSingleHandler("input");
   const sessionStart = mockPi.getSingleHandler("session_start");
@@ -246,7 +246,7 @@ test("input guard allows tutor workflows when tutor mode is on", async () => {
 
 test("/tutor on persists enabled state, updates UI, and queues conversational onboarding when the profile markdown is missing", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
@@ -264,8 +264,8 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
     assert.match(String((mockPi.appendedEntries[0]?.data as { updatedAt: string }).updatedAt), /^\d{4}-\d{2}-\d{2}T/);
 
     assert.match(notifications.at(-1)?.message ?? "", /enabled/i);
-    assert.equal(statuses.at(-1)?.value, "📚 tutor mode enabled");
-    assert.equal(widgets.at(-1)?.value, undefined);
+    assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
+    assert.equal(widgets.length, 0);
 
     assert.equal(inputCalls.length, 0);
     assert.equal(confirmCalls.length, 0);
@@ -288,7 +288,7 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
 
 test("existing learner profile markdown is reused without repeating onboarding and changes tutor guidance", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const sessionStart = mockPi.getSingleHandler("session_start");
@@ -347,7 +347,7 @@ test("existing learner profile markdown is reused without repeating onboarding a
 
 test("/tutor on treats the presence of learner-profile.md as onboarding completion", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const tutorCommand = mockPi.commands.get("tutor");
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
@@ -387,7 +387,7 @@ test("/tutor on treats the presence of learner-profile.md as onboarding completi
 
 test("session_start restores persisted state and /tutor off clears the widget", async () => {
   const mockPi = createMockPi();
-  piTutorExtension(mockPi.api);
+  ohMyTutorExtension(mockPi.api);
 
   const sessionStart = mockPi.getSingleHandler("session_start");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
@@ -403,8 +403,12 @@ test("session_start restores persisted state and /tutor off clears the widget", 
   });
 
   await sessionStart({ type: "session_start" }, ctx);
-  assert.equal(statuses.at(-1)?.value, "📚 tutor mode enabled");
-  assert.equal(widgets.at(-1)?.value, undefined);
+  assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
+
+  await mockPi.getSingleHandler("agent_start")({ type: "agent_start" }, ctx);
+  assert.equal(statuses.at(-1)?.value, "● 🦉 tutor: ON");
+  await mockPi.getSingleHandler("agent_end")({ type: "agent_end" }, ctx);
+  assert.equal(statuses.at(-1)?.value, "○ 🦉 tutor: ON");
 
   const injected = await beforeAgentStart({ systemPrompt: "Base prompt" }, ctx);
   assert.match(String((injected as { systemPrompt?: string } | undefined)?.systemPrompt), /hints before full solutions/i);

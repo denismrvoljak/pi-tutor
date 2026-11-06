@@ -1,9 +1,9 @@
 ---
-description: Start or resume a track-aware tutoring session with pi-tutor.
+description: Start or resume a track-aware tutoring session with oh-my-tutor.
 ---
 Start or resume tutoring for this task/topic: $ARGUMENTS
 
-Use any injected pi-tutor context first.
+Use any injected oh-my-tutor context first.
 If a track is matched, continue it instead of starting over and consult `track.md`, `project.md`, `roadmap.md`, and `progress.md` before deciding what to do.
 Use roadmap checkboxes as the task todo source of truth and keep `progress.md` journey status in sync with checked items.
 

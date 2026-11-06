@@ -18,7 +18,7 @@ import {
 export const TUTOR_MODE_CUSTOM_TYPE = "pi-tutor-mode";
 export const TUTOR_ONBOARDING_MESSAGE_CUSTOM_TYPE = "pi-tutor-onboarding";
 export const TUTOR_WORKFLOW_DISABLED_MESSAGE_CUSTOM_TYPE = "pi-tutor-workflow-disabled";
-export const TUTOR_STATUS_KEY = "pi-tutor";
+export const TUTOR_STATUS_KEY = "oh-my-tutor";
 
 const TUTOR_PROMPT_COMMANDS = new Set(["start_tutoring", "hint", "reflect", "next_step"]);
 const TUTOR_SKILL_COMMANDS = new Set(["tutor-implementation", "tutor-learn-topic"]);
@@ -90,8 +90,17 @@ Tutor behavior rules:
 - Briefly reinforce progress and point to what to try next.`;
 }
 
-export function getTutorStatusText(enabled: boolean): string | undefined {
-  return enabled ? "📚 tutor mode enabled" : undefined;
+interface StatusTheme {
+  fg(color: string, text: string): string;
+}
+
+const PLAIN_THEME: StatusTheme = { fg: (_color, text) => text };
+
+// Same shape as ponytail's footer item: the dot lights up while the agent is working.
+export function getTutorStatusText(enabled: boolean, active = false, theme: StatusTheme = PLAIN_THEME): string | undefined {
+  if (!enabled) return undefined;
+  const indicator = active ? theme.fg("accent", "●") : theme.fg("dim", "○");
+  return `${indicator} 🦉 ${theme.fg("muted", "tutor: ")}${theme.fg("text", "ON")}`;
 }
 
 function parseTutorWorkflowInvocation(input: string): string | undefined {
@@ -117,12 +126,6 @@ function buildTutorWorkflowDisabledMessage(command: string): string {
   return `Tutor mode is off. Run /tutor on before using ${command}.`;
 }
 
-function syncTutorUi(ctx: ExtensionContext, state: TutorModeState): void {
-  if (!ctx.hasUI) return;
-
-  ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled));
-  ctx.ui.setWidget("pi-tutor-mode", undefined);
-}
 
 function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: string): string {
   const base = state.enabled
@@ -136,9 +139,21 @@ function describeTutorState(state: TutorModeState, learnerProfileMarkdown?: stri
   return `${base} Learner profile markdown is loaded and will guide tutoring behavior.`;
 }
 
-export default function piTutorExtension(pi: ExtensionAPI): void {
+export default function ohMyTutorExtension(pi: ExtensionAPI): void {
   let tutorModeState = DEFAULT_TUTOR_MODE_STATE;
   let learnerProfileMarkdown: string | undefined;
+  let agentActive = false;
+
+  const syncTutorUi = (ctx: ExtensionContext, state: TutorModeState) => {
+    if (!ctx.hasUI) return;
+
+    // Like ponytail: some hosts throw when the theme is read before it is ready.
+    let theme: StatusTheme = PLAIN_THEME;
+    try {
+      theme = ctx.ui.theme;
+    } catch {}
+    ctx.ui.setStatus(TUTOR_STATUS_KEY, getTutorStatusText(state.enabled, agentActive, theme));
+  };
 
   const restoreTutorState = async (ctx: ExtensionContext) => {
     tutorModeState = reconstructTutorModeState(ctx.sessionManager.getBranch());
@@ -264,5 +279,15 @@ export default function piTutorExtension(pi: ExtensionAPI): void {
 
   pi.on("session_tree", async (_event, ctx) => {
     await restoreTutorState(ctx);
+  });
+
+  pi.on("agent_start", async (_event, ctx) => {
+    agentActive = true;
+    syncTutorUi(ctx, tutorModeState);
+  });
+
+  pi.on("agent_end", async (_event, ctx) => {
+    agentActive = false;
+    syncTutorUi(ctx, tutorModeState);
   });
 }
