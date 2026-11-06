@@ -35,7 +35,8 @@ const addContext = (additionalContext) =>
   reply({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext } });
 
 // Plugin commands arrive as "/tutor:<name> args"; accept the bare "/<name>" form too.
-const [, command, args = ""] = prompt.trim().match(/^\/(?:tutor:)?([\w-]+)\s*([\s\S]*)$/) ?? [];
+// "/" is a Claude Code command; "$" is a Codex skill mention, the closest thing Codex has to a plugin command.
+const [, command, args = ""] = prompt.trim().match(/^[/$](?:tutor:)?([\w-]+)\s*([\s\S]*)$/) ?? [];
 const profilePath = resolveLearnerProfilePath();
 
 if (command === "tutor") {
