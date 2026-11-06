@@ -1,54 +1,61 @@
-<svg width="1280" height="400" viewBox="0 0 1280 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="oh-my-tutor — hints before solutions, learning that remembers">
+<svg width="1280" height="400" viewBox="0 0 1280 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="oh-my-tutor: hints before solutions, learning that remembers">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="400" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#12182B"/>
-      <stop offset="1" stop-color="#0A0E1A"/>
+      <stop offset="0" stop-color="#1e1e2e"/><stop offset="1" stop-color="#11111b"/>
     </linearGradient>
-    <radialGradient id="glow" cx="18%" cy="38%" r="60%">
-      <stop offset="0" stop-color="#E8A33D" stop-opacity="0.16"/>
-      <stop offset="100%" stop-color="#E8A33D" stop-opacity="0"/>
+    <radialGradient id="glow" cx="16%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#fab387" stop-opacity="0.14"/><stop offset="100%" stop-color="#fab387" stop-opacity="0"/>
     </radialGradient>
-    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
-      <circle cx="1.4" cy="1.4" r="1.4" fill="#EDE6D6"/>
-    </pattern>
-    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#E8A33D" stop-opacity="0.55"/>
-      <stop offset="100%" stop-color="#E8A33D" stop-opacity="0"/>
-    </radialGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1.4" cy="1.4" r="1.4" fill="#cdd6f4"/></pattern>
   </defs>
-
   <rect width="1280" height="400" fill="url(#bg)"/>
   <rect width="1280" height="400" fill="url(#glow)"/>
   <rect width="1280" height="400" fill="url(#dots)" opacity="0.05"/>
 
-  <!-- track rail: learning tracks, resumed over time -->
-  <g>
-    <line x1="120" y1="316" x2="660" y2="316" stroke="#3A4362" stroke-width="2" stroke-linecap="round"/>
-    <line x1="660" y1="316" x2="1160" y2="316" stroke="#3A4362" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 10"/>
-
-    <circle cx="120" cy="316" r="5" fill="#3A4362"/>
-    <circle cx="305" cy="316" r="5" fill="#3A4362"/>
-    <circle cx="480" cy="316" r="5" fill="#3A4362"/>
-
-    <circle cx="660" cy="316" r="15" fill="url(#nodeGlow)"/>
-    <circle cx="660" cy="316" r="7.5" fill="#E8A33D"/>
-    <circle cx="660" cy="316" r="12" fill="none" stroke="#E8A33D" stroke-width="1.5" opacity="0.6"/>
-
-    <circle cx="845" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
-    <circle cx="1015" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
-    <circle cx="1160" cy="316" r="5" fill="none" stroke="#3A4362" stroke-width="1.5"/>
+  <g transform="translate(190 186) scale(0.86)">
+    <path d="M-78 -20 Q-112 30 -70 78 Q-74 30 -58 -10 Z" fill="#45475a" stroke="#cdd6f4" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M78 -20 Q112 30 70 78 Q74 30 58 -10 Z" fill="#45475a" stroke="#cdd6f4" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M-76 -78 L-58 -128 L-24 -96 Q0 -104 24 -96 L58 -128 L76 -78 Q90 -32 76 14 Q60 72 0 76 Q-60 72 -76 14 Q-90 -32 -76 -78 Z" fill="#585b70" stroke="#cdd6f4" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="34" rx="44" ry="36" fill="#f5e0dc"/>
+    <path d="M-22 22 l8 8 l8 -8 M6 22 l8 8 l8 -8 M-8 42 l8 8 l8 -8" fill="none" stroke="#11111b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+    <ellipse cx="-34" cy="-46" rx="27" ry="27" fill="#cdd6f4"><animate attributeName="ry" values="27;27;1.5;27" keyTimes="0;0.93;0.96;1" dur="6s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="34" cy="-46" rx="27" ry="27" fill="#cdd6f4"><animate attributeName="ry" values="27;27;1.5;27" keyTimes="0;0.93;0.96;1" dur="6s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="-30" cy="-44" rx="11" ry="11" fill="#11111b"><animate attributeName="ry" values="11;11;1.5;11" keyTimes="0;0.93;0.96;1" dur="6s" repeatCount="indefinite"/></ellipse>
+    <ellipse cx="38" cy="-44" rx="11" ry="11" fill="#11111b"><animate attributeName="ry" values="11;11;1.5;11" keyTimes="0;0.93;0.96;1" dur="6s" repeatCount="indefinite"/></ellipse>
+    <g fill="none" stroke="#fab387" stroke-width="5"><circle cx="-34" cy="-46" r="33"/><circle cx="34" cy="-46" r="33"/></g>
+    <path d="M-8 -16 L8 -16 L0 0 Z" fill="#fab387" stroke="#fab387" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-22 76 l-4 10 M-14 76 v10 M14 76 v10 M22 76 l4 10" stroke="#fab387" stroke-width="5" stroke-linecap="round"/>
   </g>
+  <line x1="88" y1="268" x2="292" y2="268" stroke="#fab387" stroke-width="4" stroke-linecap="round"/>
+  <text x="330" y="166" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="58" fill="#cdd6f4" font-weight="700" letter-spacing="-1">oh-my-<tspan fill="#fab387">tutor</tspan></text>
+  <text x="333" y="206" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="17" fill="#a6adc8" letter-spacing="2.5">HINTS BEFORE SOLUTIONS</text>
+  <text x="333" y="234" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="17" fill="#a6adc8" letter-spacing="2.5">LEARNING THAT REMEMBERS</text>
 
-  <!-- pi glyph -->
-  <text x="86" y="266" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="248" fill="#EDE6D6">&#960;</text>
-  <line x1="92" y1="292" x2="330" y2="292" stroke="#E8A33D" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+  <rect x="740" y="52" width="444" height="272" rx="14" fill="#181825" stroke="#313244" stroke-width="1.5"/>
+  <circle cx="764" cy="76" r="6" fill="#f38ba8"/><circle cx="784" cy="76" r="6" fill="#f9e2af"/><circle cx="804" cy="76" r="6" fill="#a6e3a1"/>
+  <text x="766" y="122" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#cba6f7" >&#10095; <tspan fill="#cdd6f4">/tutor:hint loops</tspan></text>
+  <text x="766" y="149" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#a6adc8" ></text>
+  <text x="766" y="176" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#a6e3a1" >Hint 1 of 3</text>
+  <text x="766" y="203" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#a6adc8" >Print i inside the loop.</text>
+  <text x="766" y="230" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#a6adc8" >What is its value on the</text>
+  <text x="766" y="257" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" fill="#a6adc8" >last pass? Try it first.</text>
+  <line x1="740" y1="278" x2="1184" y2="278" stroke="#313244" stroke-width="1.5"/>
+  <circle cx="770" cy="301" r="5" fill="#fab387"><animate attributeName="opacity" values="1;0.25;1" dur="1.6s" repeatCount="indefinite"/></circle>
+  <g transform="translate(796 303) scale(0.11)">
+    <path d="M-78 -20 Q-112 30 -70 78 Q-74 30 -58 -10 Z" fill="#45475a" stroke="#cdd6f4" stroke-width="0" stroke-linejoin="round"/>
+    <path d="M78 -20 Q112 30 70 78 Q74 30 58 -10 Z" fill="#45475a" stroke="#cdd6f4" stroke-width="0" stroke-linejoin="round"/>
+    <path d="M-76 -78 L-58 -128 L-24 -96 Q0 -104 24 -96 L58 -128 L76 -78 Q90 -32 76 14 Q60 72 0 76 Q-60 72 -76 14 Q-90 -32 -76 -78 Z" fill="#585b70" stroke="#cdd6f4" stroke-width="0" stroke-linejoin="round"/>
+    <ellipse cx="0" cy="34" rx="44" ry="36" fill="#f5e0dc"/>
+    <path d="M-22 22 l8 8 l8 -8 M6 22 l8 8 l8 -8 M-8 42 l8 8 l8 -8" fill="none" stroke="#11111b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+    <ellipse cx="-34" cy="-46" rx="27" ry="27" fill="#cdd6f4"></ellipse>
+    <ellipse cx="34" cy="-46" rx="27" ry="27" fill="#cdd6f4"></ellipse>
+    <ellipse cx="-30" cy="-44" rx="11" ry="11" fill="#11111b"></ellipse>
+    <ellipse cx="38" cy="-44" rx="11" ry="11" fill="#11111b"></ellipse>
+    
+    <path d="M-8 -16 L8 -16 L0 0 Z" fill="#fab387" stroke="#fab387" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M-22 76 l-4 10 M-14 76 v10 M14 76 v10 M22 76 l4 10" stroke="#fab387" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="814" y="307" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="16" fill="#a6adc8" >tutor: <tspan fill="#cdd6f4" font-weight="700">ON</tspan></text>
 
-  <!-- wordmark -->
-  <text x="424" y="196" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="66" font-weight="600" fill="#EDE6D6" letter-spacing="0.5">pi<tspan fill="#E8A33D">-tutor</tspan></text>
-
-  <!-- tagline -->
-  <text x="426" y="234" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="18" letter-spacing="2.5" fill="#7C8AA0">HINTS BEFORE SOLUTIONS &#183; LEARNING THAT REMEMBERS</text>
-
-  <!-- footer -->
-  <text x="1160" y="368" text-anchor="end" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="16" fill="#3A4362">pi install npm:oh-my-tutor</text>
+  <text x="1184" y="372" font-family="'SF Mono','Menlo','Consolas',monospace" font-size="15" fill="#6c7086" text-anchor="end">pi install npm:oh-my-tutor  &#183;  /plugin install tutor@oh-my-tutor</text>
 </svg>

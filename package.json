@@ -7,9 +7,10 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "test": "node --test",
+    "test": "env -u PI_TUTOR_DIR node --test",
     "check": "pnpm typecheck && pnpm test && pnpm build",
-    "pack:smoke": "node ./scripts/pack-smoke.mjs"
+    "pack:smoke": "node ./scripts/pack-smoke.mjs",
+    "banner": "node ./scripts/build-banner.mjs"
   },
   "files": [
     "README.md",
