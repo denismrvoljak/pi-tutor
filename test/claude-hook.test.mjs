@@ -10,7 +10,7 @@ const hook = new URL("../claude/user-prompt-submit.mjs", import.meta.url).pathna
 function run(env, prompt, sessionId = "s1") {
   const out = execFileSync("node", [hook], {
     input: JSON.stringify({ prompt, session_id: sessionId, cwd: env.cwd }),
-    env: { ...process.env, HOME: env.home, PI_TUTOR_DIR: env.tutor },
+    env: { ...process.env, HOME: env.home, OH_MY_TUTOR_DIR: env.tutor },
   }).toString();
   return out ? JSON.parse(out) : undefined;
 }
@@ -21,6 +21,9 @@ test("claude hook toggles tutor mode per session and gates workflows", () => {
 
   assert.equal(run(env, "plain question"), undefined);
   assert.equal(run(env, "/tutor:hint loops").decision, "block");
+  assert.match(run(env, "$hint loops").reason, /Run \$tutor on before using \$hint/); // Codex skill mention
+  assert.match(run(env, "/tutor:hint loops").reason, /Run \/tutor:tutor on before using \/tutor:hint/);
+  assert.match(run(env, "@tutor bogus").reason, /Usage: @tutor on/); // Codex plugin mention
   assert.equal(run(env, "/tutor:tutor bogus").decision, "block");
 
   const on = run(env, "/tutor:tutor on").hookSpecificOutput.additionalContext;
@@ -37,7 +40,7 @@ test("claude hook toggles tutor mode per session and gates workflows", () => {
 
   // The launcher the hook wrote shows the indicator only for the session with tutor mode on.
   const statusline = (sessionId) =>
-    execFileSync("node", [join(env.home, ".claude", "oh-my-tutor", "statusline.mjs")], {
+    execFileSync("node", [join(env.home, ".oh-my-tutor", "statusline.mjs")], {
       input: JSON.stringify({ session_id: sessionId }),
       env: { ...process.env, HOME: env.home },
     }).toString();

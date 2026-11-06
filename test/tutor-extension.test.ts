@@ -252,8 +252,8 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
   const { ctx, notifications, statuses, widgets, inputCalls, confirmCalls } = createMockContext();
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
-  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-  process.env.PI_CODING_AGENT_DIR = agentDir;
+  const previousAgentDir = process.env.OH_MY_TUTOR_DIR;
+  process.env.OH_MY_TUTOR_DIR = agentDir;
 
   try {
     await tutorCommand?.handler("on", ctx);
@@ -280,8 +280,8 @@ test("/tutor on persists enabled state, updates UI, and queues conversational on
     assert.match(prompt, /learner-profile\.md/);
     assert.match(prompt, /write tool/i);
   } finally {
-    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    if (previousAgentDir === undefined) delete process.env.OH_MY_TUTOR_DIR;
+    else process.env.OH_MY_TUTOR_DIR = previousAgentDir;
     rmSync(agentDir, { recursive: true, force: true });
   }
 });
@@ -294,8 +294,8 @@ test("existing learner profile markdown is reused without repeating onboarding a
   const sessionStart = mockPi.getSingleHandler("session_start");
   const beforeAgentStart = mockPi.getSingleHandler("before_agent_start");
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
-  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-  process.env.PI_CODING_AGENT_DIR = agentDir;
+  const previousAgentDir = process.env.OH_MY_TUTOR_DIR;
+  process.env.OH_MY_TUTOR_DIR = agentDir;
 
   try {
     const markdown = renderLearnerProfileMarkdown({
@@ -312,7 +312,7 @@ test("existing learner profile markdown is reused without repeating onboarding a
       createdAt: "2026-03-17T15:00:00.000Z",
       updatedAt: "2026-03-17T15:00:00.000Z",
     });
-    await saveLearnerProfileMarkdown(markdown, agentDir);
+    await saveLearnerProfileMarkdown(markdown);
 
     const { ctx, inputCalls, confirmCalls } = createMockContext({
       branch: [
@@ -339,8 +339,8 @@ test("existing learner profile markdown is reused without repeating onboarding a
     assert.match(prompt, /Concise explanations: no/);
     assert.match(prompt, /Reflection checkpoints: yes/);
   } finally {
-    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    if (previousAgentDir === undefined) delete process.env.OH_MY_TUTOR_DIR;
+    else process.env.OH_MY_TUTOR_DIR = previousAgentDir;
     rmSync(agentDir, { recursive: true, force: true });
   }
 });
@@ -351,8 +351,8 @@ test("/tutor on treats the presence of learner-profile.md as onboarding completi
 
   const tutorCommand = mockPi.commands.get("tutor");
   const agentDir = mkdtempSync(join(tmpdir(), "pi-tutor-agent-"));
-  const previousAgentDir = process.env.PI_CODING_AGENT_DIR;
-  process.env.PI_CODING_AGENT_DIR = agentDir;
+  const previousAgentDir = process.env.OH_MY_TUTOR_DIR;
+  process.env.OH_MY_TUTOR_DIR = agentDir;
 
   try {
     await saveLearnerProfileMarkdown(
@@ -370,7 +370,6 @@ test("/tutor on treats the presence of learner-profile.md as onboarding completi
         createdAt: "2026-03-17T16:00:00.000Z",
         updatedAt: "2026-03-17T16:00:00.000Z",
       }),
-      agentDir,
     );
 
     const { ctx } = createMockContext();
@@ -379,8 +378,8 @@ test("/tutor on treats the presence of learner-profile.md as onboarding completi
     assert.equal(mockPi.sentMessages.length, 0);
     assert.equal(resolveLearnerProfilePath(agentDir).endsWith("learner-profile.md"), true);
   } finally {
-    if (previousAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
-    else process.env.PI_CODING_AGENT_DIR = previousAgentDir;
+    if (previousAgentDir === undefined) delete process.env.OH_MY_TUTOR_DIR;
+    else process.env.OH_MY_TUTOR_DIR = previousAgentDir;
     rmSync(agentDir, { recursive: true, force: true });
   }
 });

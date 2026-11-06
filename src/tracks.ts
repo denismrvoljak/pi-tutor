@@ -2,7 +2,8 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 
-export const TUTOR_PROJECT_DIRNAME = ".pi-tutor";
+export const TUTOR_PROJECT_DIRNAME = ".oh-my-tutor";
+export const LEGACY_PROJECT_DIRNAME = ".pi-tutor";
 export const TRACKS_DIRNAME = "tracks";
 export const TRACK_FILENAME = "track.md";
 export const PROJECT_FILENAME = "project.md";
@@ -135,7 +136,9 @@ export function resolveProjectRoot(startDir = process.cwd()): string {
 }
 
 export function resolveTracksRoot(projectRoot = resolveProjectRoot()): string {
-  return join(projectRoot, TUTOR_PROJECT_DIRNAME, TRACKS_DIRNAME);
+  // Projects tracked before the rename keep their .pi-tutor folder.
+  const legacy = join(projectRoot, LEGACY_PROJECT_DIRNAME, TRACKS_DIRNAME);
+  return existsSync(legacy) ? legacy : join(projectRoot, TUTOR_PROJECT_DIRNAME, TRACKS_DIRNAME);
 }
 
 export function slugifyTrackName(name: string): string {

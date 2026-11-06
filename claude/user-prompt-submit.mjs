@@ -35,13 +35,16 @@ const addContext = (additionalContext) =>
   reply({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext } });
 
 // Plugin commands arrive as "/tutor:<name> args"; accept the bare "/<name>" form too.
-const [, command, args = ""] = prompt.trim().match(/^\/(?:tutor:)?([\w-]+)\s*([\s\S]*)$/) ?? [];
+// "/" is a Claude Code command; "$" is a Codex skill mention, the closest thing Codex has to a plugin command.
+const [, sigil, command, args = ""] = prompt.trim().match(/^([/$@])(?:tutor:)?([\w-]+)\s*([\s\S]*)$/) ?? [];
+// Answer in the syntax the user typed: "@tutor on" / "$hint" in Codex, "/tutor:hint" in Claude Code.
+const cmd = (name) => (sigil === "/" ? `/tutor:${name}` : `${sigil}${name}`);
 const profilePath = resolveLearnerProfilePath();
 
 if (command === "tutor") {
   const action = parseTutorCommand(args);
   if (!action) {
-    reply({ decision: "block", reason: "Usage: /tutor:tutor on | off | status" });
+    reply({ decision: "block", reason: `Usage: ${cmd("tutor")} on | off | status` });
   } else {
     if (action === "on") {
       await mkdir(dirname(flagPath), { recursive: true });
@@ -66,7 +69,7 @@ if (command === "tutor") {
     addContext(lines.join("\n\n"));
   }
 } else if (WORKFLOWS.has(command) && !enabled) {
-  reply({ decision: "block", reason: `Tutor mode is off. Run /tutor:tutor on before using /tutor:${command}.` });
+  reply({ decision: "block", reason: `Tutor mode is off. Run ${cmd("tutor")} on before using ${cmd(command)}.` });
 } else if (enabled) {
   const profile = await loadLearnerProfileMarkdown();
   const parts = [buildTutorModeSystemPrompt("").trim()];
