@@ -9,7 +9,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "node --test",
     "check": "pnpm typecheck && pnpm test && pnpm build",
-    "pack:smoke": "node ./scripts/pack-smoke.mjs"
+    "pack:smoke": "node ./scripts/pack-smoke.mjs",
+    "banner": "node ./scripts/build-banner.mjs"
   },
   "files": [
     "README.md",

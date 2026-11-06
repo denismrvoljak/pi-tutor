@@ -309,6 +309,7 @@ cd /absolute/path/to/oh-my-tutor
 pnpm test
 pnpm check
 pnpm pack:smoke
+pnpm banner   # rebuild assets/banner-*.svg from the Catppuccin tokens
 ```
 
 Useful extra loop when you only want to test the extension file directly:
