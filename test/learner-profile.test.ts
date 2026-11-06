@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -115,5 +115,33 @@ test("PI_TUTOR_DIR overrides the host agent dir; an explicit agentDir still wins
   } finally {
     if (previous === undefined) delete process.env.PI_TUTOR_DIR;
     else process.env.PI_TUTOR_DIR = previous;
+  }
+});
+
+test("the profile lives in ~/.oh-my-tutor unless an override or a pre-rename profile exists", () => {
+  const keys = ["HOME", "OH_MY_TUTOR_DIR", "PI_TUTOR_DIR", "PI_CODING_AGENT_DIR"] as const;
+  const saved = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  const home = mkdtempSync(join(tmpdir(), "oh-my-tutor-home-"));
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.HOME = home;
+    assert.equal(resolveLearnerProfilePath(), join(home, ".oh-my-tutor", "learner-profile.md"));
+
+    // A profile from before the rename keeps working where it is.
+    const legacy = join(home, ".pi", "agent", "pi-tutor");
+    mkdirSync(legacy, { recursive: true });
+    writeFileSync(join(legacy, "learner-profile.md"), "# Learner Profile\n");
+    assert.equal(resolveLearnerProfilePath(), join(legacy, "learner-profile.md"));
+
+    process.env.PI_TUTOR_DIR = "/tmp/old-name";
+    assert.equal(resolveLearnerProfilePath(), "/tmp/old-name/learner-profile.md");
+    process.env.OH_MY_TUTOR_DIR = "/tmp/new-name";
+    assert.equal(resolveLearnerProfilePath(), "/tmp/new-name/learner-profile.md");
+  } finally {
+    for (const key of keys) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+    rmSync(home, { recursive: true, force: true });
   }
 });

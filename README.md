@@ -12,9 +12,9 @@ pi install npm:oh-my-tutor
 
 Personal coding tutor for pi.
 
-`oh-my-tutor` turns pi or Claude Code into a teaching-oriented coding assistant.
+`oh-my-tutor` turns pi, Claude Code or Codex into a teaching-oriented coding assistant. All three share one learner profile and the same project tracks.
 
-`oh-my-tutor` was called `pi-tutor` before. Its data folders keep the old name (`.pi-tutor/`, `pi-tutor/learner-profile.md`, `PI_TUTOR_DIR`), so existing profiles and tracks keep working.
+`oh-my-tutor` was called `pi-tutor` before. Profiles and tracks from that time keep working where they are. See [State layout](#state-layout).
 
 It adapts to how you like to learn, remembers what you're learning, resumes topics over time, and guides you with hint-first help instead of jumping straight to solutions.
 
@@ -88,18 +88,31 @@ This repository is also a Claude Code plugin and marketplace:
 
 For local development, run `claude --plugin-dir /absolute/path/to/oh-my-tutor`.
 
-In Claude Code, the commands carry the plugin prefix: `/tutor:tutor on`, `/tutor:hint`, `/tutor:tutor-implementation`, and so on. A `UserPromptSubmit` hook (`claude/user-prompt-submit.mjs`) replaces the Pi extension. Tutor mode applies per session. The plugin reads the same learner profile and `.pi-tutor/tracks/` as Pi, so both harnesses share one learning state. The hook needs Node 22.18 or later.
+In Claude Code, the commands carry the plugin prefix: `/tutor:tutor on`, `/tutor:hint`, `/tutor:tutor-implementation`, and so on. A `UserPromptSubmit` hook (`claude/user-prompt-submit.mjs`) replaces the Pi extension. Tutor mode applies per session. The plugin uses the same learner profile and project tracks as Pi. The hook needs Node 22.18 or later.
 
 While tutor mode is on, Pi shows `○ 🦉 tutor: ON` in its footer. The dot lights up while the agent is working. Claude Code can show `🦉 tutor: ON` in its status line, but a plugin cannot set the status line for you. To turn it on:
 
-1. Run `/tutor:tutor on` once. This writes the launcher `~/.claude/oh-my-tutor/statusline.mjs`.
+1. Run `/tutor:tutor on` once. This writes the launcher `~/.oh-my-tutor/statusline.mjs`.
 2. Add this to `~/.claude/settings.json`:
 
    ```json
-   "statusLine": { "type": "command", "command": "node ~/.claude/oh-my-tutor/statusline.mjs" }
+   "statusLine": { "type": "command", "command": "node ~/.oh-my-tutor/statusline.mjs" }
    ```
 
 The status line prints nothing while tutor mode is off. If you already have a status line, this setting replaces it. To keep yours, call the launcher from your own status line script and print both outputs.
+
+### Codex (experimental)
+
+Codex installs the same plugin from the same marketplace:
+
+```bash
+codex plugin marketplace add denismrvoljak/oh-my-tutor
+codex plugin add tutor@oh-my-tutor
+```
+
+Then open `codex`, run `/hooks` and approve the oh-my-tutor hook. Codex skips plugin hooks until you approve them, and asks again after every plugin update.
+
+Codex has no plugin slash commands, so type `@tutor on`, `@tutor off` or `@tutor status`. Use `$hint`, `$reflect`, `$next_step` and `$start_tutoring` for the workflows. Codex has no tutor status item.
 
 ## What it includes
 
@@ -118,25 +131,33 @@ The status line prints nothing while tutor mode is off. If you already have a st
 
 ## State layout
 
-Tutor data is split across two roots: one global (learner identity), one per-project (learning tracks).
+Tutor data is split across two roots: one global (learner identity), one per-project (learning tracks). Pi, Claude Code and Codex use the same roots.
 
 ### Global learner state
 
-`learner-profile.md` lives under the agent's global config dir, shared across every project:
+One home folder holds the learner profile for every harness and every project:
 
 ```text
-${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/
-└── learner-profile.md
+~/.oh-my-tutor/
+├── learner-profile.md   # learner preferences, goals, topics, and tutoring style
+├── sessions/            # Claude Code and Codex: which sessions have tutor mode on
+└── statusline.mjs       # Claude Code status line launcher
 ```
 
-- `learner-profile.md` — durable learner preferences, goals, topics, and tutoring style
+Set `OH_MY_TUTOR_DIR` to move the learner profile somewhere else. `PI_TUTOR_DIR`, the old name, still works.
+
+If you used `pi-tutor` before, your profile is at `${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/learner-profile.md`. oh-my-tutor keeps using that file while it exists. To move it to the new home:
+
+```bash
+mkdir -p ~/.oh-my-tutor && mv ~/.pi/agent/pi-tutor/learner-profile.md ~/.oh-my-tutor/
+```
 
 ### Per-project track state
 
-Each learning stream gets its own directory under `.pi-tutor/tracks/<topic-folder>/`, inside the project repo the track is about — resolved as the nearest ancestor directory containing `.git`, falling back to the current working directory if none is found:
+Each learning stream gets its own directory under `.oh-my-tutor/tracks/<topic-folder>/`, inside the project repo the track is about — resolved as the nearest ancestor directory containing `.git`, falling back to the current working directory if none is found. A project that already has a `.pi-tutor/tracks/` folder from before the rename keeps using it.
 
 ```text
-<project-root>/.pi-tutor/
+<project-root>/.oh-my-tutor/
 └── tracks/
     └── <topic-folder>/
         ├── track.md
@@ -156,17 +177,15 @@ File roles:
 
 This package is intentionally markdown-first. There is **no hidden active-track state** to keep in sync.
 
-Tracks live in-repo so they're git-diffable and travel with the project (clone, branch, PR review). If you'd rather not commit tutoring state, add `.pi-tutor/` to the project's own `.gitignore` — oh-my-tutor does not do this for you.
+Tracks live in-repo so they're git-diffable and travel with the project (clone, branch, PR review). If you'd rather not commit tutoring state, add `.oh-my-tutor/` to the project's own `.gitignore` — oh-my-tutor does not do this for you.
 
 ### Migrating tracks created before this layout
 
 Older versions of pi-tutor stored tracks globally, under `${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/tracks/<topic-folder>/`. That location still exists on disk if you had tracks from before, but oh-my-tutor no longer reads or writes it. To keep an existing track, copy its folder into the project it belongs to:
 
 ```bash
-cp -r "${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/tracks/<topic-folder>" "/path/to/project/.pi-tutor/tracks/<topic-folder>"
+cp -r "${PI_CODING_AGENT_DIR:-~/.pi/agent}/pi-tutor/tracks/<topic-folder>" "/path/to/project/.oh-my-tutor/tracks/<topic-folder>"
 ```
-
-`learner-profile.md` is unaffected — it stays in the same global location as before.
 
 ## Local development install
 

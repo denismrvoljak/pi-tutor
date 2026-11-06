@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -66,15 +67,18 @@ function renderListSection(title: string, items: string[], emptyLabel: string): 
   return lines;
 }
 
-// PI_TUTOR_DIR lets hosts with their own agent dir (for example Pax) share one
-// learner profile with pi. An explicit agentDir argument still wins.
+const expandHome = (path: string) => resolve(path.replace(/^~(?=$|\/)/, homedir()));
+
+// One home for every harness (Pi, Claude Code, Codex): ~/.oh-my-tutor.
+// OH_MY_TUTOR_DIR overrides it; PI_TUTOR_DIR is the pre-rename name. An explicit agentDir still wins.
 export function resolveTutorDataDir(agentDir?: string): string {
   if (agentDir) return join(agentDir, "pi-tutor");
-  const override = process.env.PI_TUTOR_DIR?.trim();
-  if (override) return resolve(override.replace(/^~(?=$|\/)/, homedir()));
-  // Same default as Pi's getAgentDir(), inlined so the Claude Code hook loads without Pi installed.
-  const envDir = process.env.PI_CODING_AGENT_DIR?.trim();
-  return join(envDir ? resolve(envDir.replace(/^~(?=$|\/)/, homedir())) : join(homedir(), ".pi", "agent"), "pi-tutor");
+  const override = process.env.OH_MY_TUTOR_DIR?.trim() || process.env.PI_TUTOR_DIR?.trim();
+  if (override) return expandHome(override);
+  // A profile from before the rename stays in Pi's agent dir; we never move user data.
+  const legacy = join(expandHome(process.env.PI_CODING_AGENT_DIR?.trim() || "~/.pi/agent"), "pi-tutor");
+  if (existsSync(join(legacy, LEARNER_PROFILE_FILENAME))) return legacy;
+  return join(homedir(), ".oh-my-tutor");
 }
 
 export function resolveLearnerProfilePath(agentDir?: string): string {
