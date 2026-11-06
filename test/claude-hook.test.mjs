@@ -23,6 +23,7 @@ test("claude hook toggles tutor mode per session and gates workflows", () => {
   assert.equal(run(env, "/tutor:hint loops").decision, "block");
   assert.match(run(env, "$hint loops").reason, /Run \$tutor on before using \$hint/); // Codex skill mention
   assert.match(run(env, "/tutor:hint loops").reason, /Run \/tutor:tutor on before using \/tutor:hint/);
+  assert.match(run(env, "@tutor bogus").reason, /Usage: @tutor on/); // Codex plugin mention
   assert.equal(run(env, "/tutor:tutor bogus").decision, "block");
 
   const on = run(env, "/tutor:tutor on").hookSpecificOutput.additionalContext;
